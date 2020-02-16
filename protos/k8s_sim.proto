@@ -1,0 +1,47 @@
+// protoc --go_out=plugins=grpc:. k8s_sim.proto
+// python -m grpc_tools.protoc -I../protos --python_out=. --grpc_python_out=. ../protos/k8s_sim.proto
+
+syntax = "proto3";
+
+package simRPC;
+
+// Interface exported by the server.
+service simRPC {
+    rpc RecordMetrics(Metrics) returns (Result) {}
+
+      // A client-to-server streaming RPC.
+    rpc RecordFormattedMetrics(FormattedMetrics) returns (Result) {}
+}
+
+// 测试
+// 返回四个关键值的str
+message FormattedMetrics {
+    string formatted_metrics = 1;
+}
+
+message Metrics {
+    Clock   clock = 1;
+    Nodes   nodes = 2;
+    Pods    pods = 3;
+    Queue   queue = 4;
+}
+
+message Clock {
+    string clock_metrics_Key = 1;
+}
+
+message Nodes {
+    string nodes_metrics_key = 1;
+}
+
+message Pods {
+    string pods_metrics_key = 1;
+}
+
+message Queue {
+    string queue_metrics_key = 1;
+}
+
+message Result {
+    int32 result = 1;
+}
