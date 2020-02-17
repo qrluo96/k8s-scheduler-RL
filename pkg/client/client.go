@@ -35,27 +35,10 @@ func SendFormattedMetrics(met *metrics.Metrics, metricsWriters []metrics.Writer)
 		log.Fatalf("could not greet: %v", err)
 	}
 	log.Printf("Greeting: %d", r.GetResult())
-
-	// stream, err := client.RecordFormattedMetrics(ctx)
-	// if err != nil {
-	// 	log.Fatalf("%v.RecordFormattedMetrics(_) = _, %v", client, err)
-	// }
-
-	// var str, _ = formatter.Format(met)
-	// var metric = pb.FormattedMetrics{FormattedMetrics: str}
-	// if err := stream.Send(&metric); err != nil {
-	// 	log.Fatalf("%v.Send(%v) = %v", stream, metric, err)
-	// }
-
-	// reply, err := stream.CloseAndRecv()
-	// if err != nil {
-	// 	log.Fatalf("%v.CloseAndRecv() got error %v, want %v", stream, err, nil)
-	// }
-	// log.Printf("Return: %d", reply)
 }
 
 // SendMetric comment.
-func SendMetric(client pb.SimRPCClient, metric *pb.Metrics) {
+func SendMetric(metric *pb.Metrics) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	r, err := Client.RecordMetrics(ctx, metric)

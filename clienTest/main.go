@@ -22,5 +22,5 @@ func main() {
 	var metric pb.Metrics
 	clientPkg.InitMetric(&metric, "test clock", "test node")
 
-	clientPkg.SendMetric(clientPkg.Client, &metric)
+	clientPkg.SendMetric(&metric)
 }
