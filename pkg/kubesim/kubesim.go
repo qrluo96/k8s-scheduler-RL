@@ -176,7 +176,7 @@ func (k *KubeSim) Run(ctx context.Context) error {
 			log.L.Debugf("Clock %s", k.clock.ToRFC3339())
 
 			// send current data to server
-			clientPkg.SendFormattedMetrics(&met, k.metricsWriters)
+			clientPkg.SendFormattedMetrics(&met)
 
 			if k.submit(met) != nil {
 				return err

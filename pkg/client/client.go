@@ -21,7 +21,7 @@ var (
 )
 
 // SendFormattedMetrics a test function for sending metrics to server
-func SendFormattedMetrics(met *metrics.Metrics, metricsWriters []metrics.Writer) {
+func SendFormattedMetrics(met *metrics.Metrics) {
 	var formatter = metrics.JSONFormatter{}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

@@ -72,6 +72,41 @@ func BuildMetrics(clock clock.Clock, nodes map[string]*node.Node, queue queue.Po
 	return metrics, nil
 }
 
+// BuildFullMetrics builds a Metrics that has full infomation
+// of queue at the given clock.
+func BuildFullMetrics(clock clock.Clock, nodes map[string]*node.Node, queue queue.PodQueue) (Metrics, error) {
+	metrics := make(map[string]interface{})
+	// the value of Clock is string
+	metrics[ClockKey] = clock.ToRFC3339()
+
+	nodesMetrics := make(map[string]node.Metrics)
+	podsMetrics := make(map[string]pod.Metrics)
+
+	for name, node := range nodes {
+		nodesMetrics[name] = node.Metrics(clock)
+		for _, pod := range node.PodList() {
+			if !pod.IsTerminated(clock) {
+				key, err := util.PodKey(pod.ToV1())
+				if err != nil {
+					return Metrics{}, err
+				}
+				podsMetrics[key] = pod.Metrics(clock)
+			}
+		}
+	}
+
+	queueMetrics := make(map[string]pod.Metrics)
+
+	// map[string]node.Metrics()
+	metrics[NodesMetricsKey] = nodesMetrics
+	// map[string]pod.Metrics()
+	metrics[PodsMetricsKey] = podsMetrics
+	// int PendingPodsNum
+	metrics[QueueMetricsKey] = queue.Metrics()
+
+	return metrics, nil
+}
+
 // Formatter defines the interface of metrics formatter.
 type Formatter interface {
 	// Format formats the given metrics to a string.
