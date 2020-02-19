@@ -64,7 +64,7 @@ var rootCmd = &cobra.Command{
 		defer conn.Close()
 
 		// 1. Create a KubeSim with a pod queue and a scheduler.
-		queue := queue.NewPriorityQueue()
+		queue := queue.NewFIFOQueue()
 		sched := buildScheduler() // see below
 		kubesim := kubesim.NewKubeSimFromConfigPathOrDie(configPath, queue, sched, conn)
 
@@ -86,7 +86,7 @@ var rootCmd = &cobra.Command{
 
 func buildScheduler() scheduler.Scheduler {
 	// 1. Create a generic scheduler that mimics a kube-scheduler.
-	sched := scheduler.NewGenericScheduler( /* preemption enabled */ true)
+	sched := scheduler.NewGenericScheduler( /* preemption enabled */ false)
 
 	// 2. Register extender(s)
 	sched.AddExtender(

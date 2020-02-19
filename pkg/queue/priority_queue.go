@@ -45,21 +45,21 @@ func NewPriorityQueueWithComparator(comparator Compare) *PriorityQueue {
 	return newWithItems(map[string]*item{}, comparator)
 }
 
-func (pq *PriorityQueue) PodList() []*v1.Pod {
-	numPods := 0
-	for _, v1pods := range pq.nominatedPods {
-		numPods += len(v1pods)
-	}
+// func (pq *PriorityQueue) PodList() []*v1.Pod {
+// 	numPods := 0
+// 	for _, v1pods := range pq.nominatedPods {
+// 		numPods += len(v1pods)
+// 	}
 
-	podList := make([]*v1.Pod, 0, numPods)
-	for _, v1pods := range pq.nominatedPods {
-		for _, v1pod := range v1pods {
-			podList = append(podList, v1pod)
-		}
-	}
+// 	podList := make([]*v1.Pod, 0, numPods)
+// 	for _, v1pods := range pq.nominatedPods {
+// 		for _, v1pod := range v1pods {
+// 			podList = append(podList, v1pod)
+// 		}
+// 	}
 
-	return podList
-}
+// 	return podList
+// }
 
 // Reorder creates a new PriorityQueue with all pods stored in the original queue in the sorted
 // order according to the given comparator.

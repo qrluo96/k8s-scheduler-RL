@@ -77,6 +77,6 @@ type PodQueue interface {
 	// Metrics returns a metrics of this PodQueue.
 	Metrics() Metrics
 
-	// PodList returns a list of all pods that in a queue
-	PodList() []*v1.Pod
+	// // PodList returns a list of all pods that in a queue
+	// PodList() []*v1.Pod
 }
