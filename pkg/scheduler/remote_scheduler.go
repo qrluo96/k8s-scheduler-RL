@@ -33,10 +33,10 @@ import (
 	"simulator/pkg/util"
 )
 
-// GenericScheduler makes scheduling decision for each given pod in the one-by-one manner.
+// RemoteScheduler makes scheduling decision for each given pod in the one-by-one manner.
 // This type is similar to "k8s.io/pkg/Scheduler/Scheduler/core".genericScheduler, which implements
 // "k8s.io/pkg/Scheduler/Scheduler/core".ScheduleAlgorithm.
-type GenericScheduler struct {
+type RemoteScheduler struct {
 	extenders    []Extender
 	predicates   map[string]predicates.FitPredicate
 	prioritizers []priorities.PriorityConfig
@@ -45,8 +45,8 @@ type GenericScheduler struct {
 	preemptionEnabled bool
 }
 
-// NewGenericScheduler creates a new GenericScheduler.
-func NewGenericScheduler(preeptionEnabled bool) GenericScheduler {
+// NewRemoteScheduler creates a new RemoteScheduler.
+func NewRemoteScheduler(preeptionEnabled bool) GenericScheduler {
 	return GenericScheduler{
 		predicates:        map[string]predicates.FitPredicate{},
 		preemptionEnabled: preeptionEnabled,
@@ -54,24 +54,24 @@ func NewGenericScheduler(preeptionEnabled bool) GenericScheduler {
 }
 
 // AddExtender adds an extender to this GenericScheduler.
-func (sched *GenericScheduler) AddExtender(extender Extender) {
+func (sched *RemoteScheduler) AddExtender(extender Extender) {
 	sched.extenders = append(sched.extenders, extender)
 }
 
 // AddPredicate adds a predicate plugin to this GenericScheduler.
-func (sched *GenericScheduler) AddPredicate(name string, predicate predicates.FitPredicate) {
+func (sched *RemoteScheduler) AddPredicate(name string, predicate predicates.FitPredicate) {
 	sched.predicates[name] = predicate
 }
 
 // AddPrioritizer adds a prioritizer plugin to this GenericScheduler.
-func (sched *GenericScheduler) AddPrioritizer(prioritizer priorities.PriorityConfig) {
+func (sched *RemoteScheduler) AddPrioritizer(prioritizer priorities.PriorityConfig) {
 	sched.prioritizers = append(sched.prioritizers, prioritizer)
 }
 
 // Schedule implements Scheduler interface.
 // Schedules pods in one-by-one manner by using registered extenders and plugins.
 // schedule入口
-func (sched *GenericScheduler) Schedule(
+func (sched *RemoteScheduler) Schedule(
 	clock clock.Clock,
 	pendingPods queue.PodQueue,
 	nodeLister algorithm.NodeLister,
@@ -152,13 +152,13 @@ func (sched *GenericScheduler) Schedule(
 	return results, nil
 }
 
-var _ = Scheduler(&GenericScheduler{})
+var _ = Scheduler(&RemoteScheduler{})
 
 // scheduleOne makes scheduling decision for the given pod and nodes.
 // Returns core.ErrNoNodesAvailable if nodeLister lists zero nodes, or core.FitError if the given
 // pod does not fit in any nodes.
 // 顾名思义，每次调用单个pod
-func (sched *GenericScheduler) scheduleOne(
+func (sched *RemoteScheduler) scheduleOne(
 	pod *v1.Pod,
 	nodeLister algorithm.NodeLister,
 	nodeInfoMap map[string]*nodeinfo.NodeInfo,
@@ -210,7 +210,7 @@ func (sched *GenericScheduler) scheduleOne(
 	}, err
 }
 
-func (sched *GenericScheduler) filter(
+func (sched *RemoteScheduler) filter(
 	pod *v1.Pod,
 	nodes []*v1.Node,
 	nodeInfoMap map[string]*nodeinfo.NodeInfo,
@@ -265,7 +265,7 @@ func (sched *GenericScheduler) filter(
 	return filtered, failedPredicateMap, nil
 }
 
-func (sched *GenericScheduler) prioritize(
+func (sched *RemoteScheduler) prioritize(
 	pod *v1.Pod,
 	filteredNodes []*v1.Node,
 	nodeInfoMap map[string]*nodeinfo.NodeInfo,
@@ -331,7 +331,7 @@ func (sched *GenericScheduler) prioritize(
 	return prioList, nil
 }
 
-func (sched *GenericScheduler) preempt(
+func (sched *RemoteScheduler) preempt(
 	preemptor *v1.Pod,
 	podQueue queue.PodQueue,
 	nodeLister algorithm.NodeLister,
@@ -391,7 +391,7 @@ func (sched *GenericScheduler) preempt(
 	return delEvents, nil
 }
 
-func (sched *GenericScheduler) findPreemption(
+func (sched *RemoteScheduler) findPreemption(
 	preemptor *v1.Pod,
 	podQueue queue.PodQueue,
 	nodeLister algorithm.NodeLister,

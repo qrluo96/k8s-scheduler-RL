@@ -175,14 +175,17 @@ func (k *KubeSim) Run(ctx context.Context) error {
 		default:
 			log.L.Debugf("Clock %s", k.clock.ToRFC3339())
 
-			// send current data to server
-			clientPkg.SendFormattedMetrics(&met)
+			// // send current data to server
+			// clientPkg.SendFormattedMetrics(&met)
 
 			if k.submit(met) != nil {
 				return err
 			}
 
-			if k.schedule() != nil {
+			// if k.schedule() != nil {
+			// 	return err
+			// }
+			if k.scheduleFromServer() != nil {
 				return err
 			}
 
@@ -462,4 +465,54 @@ func (k *KubeSim) deletePodFromNode(podNamespace, podName string) {
 	if !deletedFromNode { // nolint
 		//
 	}
+}
+
+func (k *KubeSim) scheduleFromServer() error {
+	// Build up-to-date NodeInfo.
+	nodeInfoMap := make(map[string]*nodeinfo.NodeInfo, len(k.nodes))
+	for name, node := range k.nodes {
+		info, err := node.ToNodeInfo(k.clock)
+		if err != nil {
+			return err
+		}
+		nodeInfoMap[name] = info
+	}
+
+	// TODO: send the cluster info to server
+	// info format k.clock, k.pendingPods, k.nodeInfoMap
+
+	// The scheduler makes scheduling decision.
+	events, err := k.scheduler.Schedule(k.clock, k.pendingPods, k, nodeInfoMap)
+	if err != nil {
+		return err
+	}
+
+	// Do the actual scheduling process for each event.
+	for _, e := range events {
+		if bind, ok := e.(*scheduler.BindEvent); ok {
+			nodeName := bind.ScheduleResult.SuggestedHost
+			node, ok := k.nodes[nodeName]
+			if !ok {
+				return fmt.Errorf("No node named %q", nodeName)
+			}
+			bind.Pod.Spec.NodeName = nodeName
+
+			pod, err := node.BindPod(k.clock, bind.Pod)
+			if err != nil {
+				return err
+			}
+
+			key, err := util.PodKey(bind.Pod)
+			if err != nil {
+				return err
+			}
+			k.boundPods[key] = pod
+		} else if del, ok := e.(*scheduler.DeleteEvent); ok {
+			k.deletePodFromNode(del.PodNamespace, del.PodName)
+		} else {
+			log.L.Panic("Unknown scheduler event")
+		}
+	}
+
+	return nil
 }

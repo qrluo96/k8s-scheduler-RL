@@ -32,6 +32,8 @@ limitations under the License.
 // k8s.io/kubernetes/pkg/scheduler/core/generic_scheduler.go by the authors of
 // k8s-cluster-simulator, and modified so that they would be compatible with k8s-cluster-simulator.
 
+// Modifications copyright 2020 Qirui Luo.
+
 package scheduler
 
 import (
@@ -52,6 +54,18 @@ import (
 )
 
 func (sched *GenericScheduler) selectHost(priorities api.HostPriorityList) (string, error) {
+	if len(priorities) == 0 {
+		return "", errors.New("Empty priorities")
+	}
+
+	maxScores := findMaxScores(priorities)
+	idx := int(sched.lastNodeIndex % uint64(len(maxScores)))
+	sched.lastNodeIndex++
+
+	return priorities[maxScores[idx]].Host, nil
+}
+
+func (sched *RemoteScheduler) selectHost(priorities api.HostPriorityList) (string, error) {
 	if len(priorities) == 0 {
 		return "", errors.New("Empty priorities")
 	}
@@ -161,7 +175,112 @@ func (sched *GenericScheduler) selectNodesForPreemption(
 	return nodeToVictims, nil
 }
 
+func (sched *RemoteScheduler) selectNodesForPreemption(
+	preemptor *v1.Pod,
+	nodeInfoMap map[string]*nodeinfo.NodeInfo,
+	potentialNodes []*v1.Node,
+	podQueue queue.PodQueue,
+	// pdbs []*policy.PodDisruptionBudget,
+) (map[*v1.Node]*api.Victims, error) {
+	nodeToVictims := map[*v1.Node]*api.Victims{}
+
+	for _, node := range potentialNodes {
+		pods, numPDBViolations, fits := sched.selectVictimsOnNode(preemptor, nodeInfoMap[node.Name], podQueue /* , pdbs */)
+		if fits {
+			nodeToVictims[node] = &api.Victims{
+				Pods:             pods,
+				NumPDBViolations: numPDBViolations,
+			}
+		}
+	}
+
+	return nodeToVictims, nil
+}
+
 func (sched *GenericScheduler) selectVictimsOnNode(
+	preemptor *v1.Pod,
+	nodeInfo *nodeinfo.NodeInfo,
+	podQueue queue.PodQueue,
+	// pdbs []*policy.PodDisruptionBudget,
+) (pods []*v1.Pod, numPDBViolations int, fits bool) {
+	if nodeInfo == nil {
+		return nil, 0, false
+	}
+
+	potentialVictims := kutil.SortableList{CompFunc: kutil.HigherPriorityPod}
+	nodeInfoCopy := nodeInfo.Clone()
+
+	removePod := func(p *v1.Pod) {
+		nodeInfoCopy.RemovePod(p)
+	}
+
+	addPod := func(p *v1.Pod) {
+		nodeInfoCopy.AddPod(p)
+	}
+
+	podPriority := util.PodPriority(preemptor)
+	for _, p := range nodeInfoCopy.Pods() {
+		if util.PodPriority(p) < podPriority {
+			potentialVictims.Items = append(potentialVictims.Items, p)
+			removePod(p)
+		}
+	}
+	potentialVictims.Sort()
+
+	if fits, _, err := podFitsOnNode(preemptor, sched.predicates, nodeInfoCopy, podQueue); !fits {
+		if err != nil {
+			log.L.Warnf("Encountered error while selecting victims on node %s: %v", nodeInfoCopy.Node().Name, err)
+		}
+
+		log.L.Debugf(
+			"Preemptor does not fit in node %s even if all lower-priority pods were removed",
+			nodeInfoCopy.Node().Name)
+		return nil, 0, false
+	}
+
+	var victims []*v1.Pod
+	// numViolatingVictim := 0
+
+	// // Try to reprieve as many pods as possible. We first try to reprieve the PDB
+	// // violating victims and then other non-violating ones. In both cases, we start
+	// // from the highest priority victims.
+	// violatingVictims, nonViolatingVictims := filterPodsWithPDBViolation(potentialVictims.Items, pdbs)
+
+	reprievePod := func(p *v1.Pod) bool {
+		addPod(p)
+		fits, _, _ := podFitsOnNode(preemptor, sched.predicates, nodeInfoCopy, podQueue)
+		if !fits {
+			removePod(p)
+			victims = append(victims, p)
+
+			if l.IsDebugEnabled() {
+				key, err := util.PodKey(p)
+				if err != nil {
+					log.L.Warnf("Encountered error while building key of pod %v: %v", p, err)
+					return fits
+				}
+				log.L.Debugf("Pod %s is a potential preemption victim on node %s.", key, nodeInfoCopy.Node().Name)
+			}
+		}
+
+		return fits
+	}
+
+	for _, p := range /* violatingVictims */ potentialVictims.Items {
+		if !reprievePod(p.(*v1.Pod)) {
+			// numViolatingVictim++
+		}
+	}
+
+	// // Now we try to reprieve non-violating victims.
+	// for _, p := range nonViolatingVictims {
+	// 	reprievePod(p)
+	// }
+
+	return victims /* numViolatingVictim */, 0, true
+}
+
+func (sched *RemoteScheduler) selectVictimsOnNode(
 	preemptor *v1.Pod,
 	nodeInfo *nodeinfo.NodeInfo,
 	podQueue queue.PodQueue,
