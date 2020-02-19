@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='simRPC',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\rk8s_sim.proto\x12\x06simRPC\"-\n\x10\x46ormattedMetrics\x12\x19\n\x11\x66ormatted_metrics\x18\x01 \x01(\t\"\x7f\n\x07Metrics\x12\x1c\n\x05\x63lock\x18\x01 \x01(\x0b\x32\r.simRPC.Clock\x12\x1c\n\x05nodes\x18\x02 \x01(\x0b\x32\r.simRPC.Nodes\x12\x1a\n\x04pods\x18\x03 \x01(\x0b\x32\x0c.simRPC.Pods\x12\x1c\n\x05queue\x18\x04 \x01(\x0b\x32\r.simRPC.Queue\"\"\n\x05\x43lock\x12\x19\n\x11\x63lock_metrics_Key\x18\x01 \x01(\t\"\"\n\x05Nodes\x12\x19\n\x11nodes_metrics_key\x18\x01 \x01(\t\" \n\x04Pods\x12\x18\n\x10pods_metrics_key\x18\x01 \x01(\t\"\"\n\x05Queue\x12\x19\n\x11queue_metrics_key\x18\x01 \x01(\t\"\x18\n\x06Result\x12\x0e\n\x06result\x18\x01 \x01(\x05\x32\x82\x01\n\x06simRPC\x12\x32\n\rRecordMetrics\x12\x0f.simRPC.Metrics\x1a\x0e.simRPC.Result\"\x00\x12\x44\n\x16RecordFormattedMetrics\x12\x18.simRPC.FormattedMetrics\x1a\x0e.simRPC.Result\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\rk8s_sim.proto\x12\x06simRPC\"-\n\x10\x46ormattedMetrics\x12\x19\n\x11\x66ormatted_metrics\x18\x01 \x01(\t\"\x7f\n\x07Metrics\x12\x1c\n\x05\x63lock\x18\x01 \x01(\x0b\x32\r.simRPC.Clock\x12\x1c\n\x05nodes\x18\x02 \x01(\x0b\x32\r.simRPC.Nodes\x12\x1a\n\x04pods\x18\x03 \x01(\x0b\x32\x0c.simRPC.Pods\x12\x1c\n\x05queue\x18\x04 \x01(\x0b\x32\r.simRPC.Queue\"\"\n\x05\x43lock\x12\x19\n\x11\x63lock_metrics_Key\x18\x01 \x01(\t\"\"\n\x05Nodes\x12\x19\n\x11nodes_metrics_key\x18\x01 \x01(\t\" \n\x04Pods\x12\x18\n\x10pods_metrics_key\x18\x01 \x01(\t\"\"\n\x05Queue\x12\x19\n\x11queue_metrics_key\x18\x01 \x01(\t\"\x18\n\x06Result\x12\x0e\n\x06result\x18\x01 \x01(\t2\x82\x01\n\x06simRPC\x12\x32\n\rRecordMetrics\x12\x0f.simRPC.Metrics\x1a\x0e.simRPC.Result\"\x00\x12\x44\n\x16RecordFormattedMetrics\x12\x18.simRPC.FormattedMetrics\x1a\x0e.simRPC.Result\"\x00\x62\x06proto3')
 )
 
 
@@ -242,8 +242,8 @@ _RESULT = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='result', full_name='simRPC.Result.result', index=0,
-      number=1, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),

@@ -43,5 +43,5 @@ message Queue {
 }
 
 message Result {
-    int32 result = 1;
+    string result = 1;
 }

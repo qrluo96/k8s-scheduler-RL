@@ -20,6 +20,10 @@ import (
 	"simulator/pkg/pod"
 	"simulator/pkg/queue"
 	"simulator/pkg/util"
+
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/kubernetes/pkg/scheduler/algorithm"
+	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
 )
 
 // Metrics represents a metrics at one time point, in the following structure.
@@ -28,6 +32,13 @@ import (
 //   Metrics[PodsMetricsKey] = map from pod name to pod.Metrics
 // 	 Metrics[QueueMetricsKey] = queue.Metrics
 type Metrics map[string]interface{}
+
+type RemoteMetric struct {
+	Pod         *v1.Pod
+	NodeLister  algorithm.NodeLister
+	NodeInfoMap map[string]*nodeinfo.NodeInfo
+	PodQueue    queue.PodQueue
+}
 
 const (
 	// ClockKey is the key associated to a clock.Clock.
@@ -95,7 +106,7 @@ func BuildFullMetrics(clock clock.Clock, nodes map[string]*node.Node, queue queu
 		}
 	}
 
-	queueMetrics := make(map[string]pod.Metrics)
+	// queueMetrics := make(map[string]pod.Metrics)
 
 	// map[string]node.Metrics()
 	metrics[NodesMetricsKey] = nodesMetrics

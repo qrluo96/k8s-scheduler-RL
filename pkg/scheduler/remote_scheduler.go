@@ -27,8 +27,10 @@ import (
 	"k8s.io/kubernetes/pkg/scheduler/core"
 	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
 
+	"simulator/pkg/client"
 	"simulator/pkg/clock"
 	l "simulator/pkg/log"
+	"simulator/pkg/metrics"
 	"simulator/pkg/queue"
 	"simulator/pkg/util"
 )
@@ -46,8 +48,8 @@ type RemoteScheduler struct {
 }
 
 // NewRemoteScheduler creates a new RemoteScheduler.
-func NewRemoteScheduler(preeptionEnabled bool) GenericScheduler {
-	return GenericScheduler{
+func NewRemoteScheduler(preeptionEnabled bool) RemoteScheduler {
+	return RemoteScheduler{
 		predicates:        map[string]predicates.FitPredicate{},
 		preemptionEnabled: preeptionEnabled,
 	}
@@ -71,9 +73,11 @@ func (sched *RemoteScheduler) AddPrioritizer(prioritizer priorities.PriorityConf
 // Schedule implements Scheduler interface.
 // Schedules pods in one-by-one manner by using registered extenders and plugins.
 // schedule入口
+// events, err := k.scheduler.Schedule(k.clock, k.pendingPods, k, nodeInfoMap)
 func (sched *RemoteScheduler) Schedule(
 	clock clock.Clock,
 	pendingPods queue.PodQueue,
+	// nodeLister is obj KubeSim
 	nodeLister algorithm.NodeLister,
 	nodeInfoMap map[string]*nodeinfo.NodeInfo) ([]Event, error) {
 
@@ -154,15 +158,42 @@ func (sched *RemoteScheduler) Schedule(
 
 var _ = Scheduler(&RemoteScheduler{})
 
+func (sched *RemoteScheduler) remoteTest(
+	// the pod to be scheduled
+	pod *v1.Pod,
+	// obj KubeSim
+	nodeLister algorithm.NodeLister,
+	nodeInfoMap map[string]*nodeinfo.NodeInfo,
+	podQueue queue.PodQueue,
+) string {
+	remoteMetric := metrics.RemoteMetric{
+		pod,
+		nodeLister,
+		nodeInfoMap,
+		podQueue,
+	}
+
+	r := client.SendRemoteFormattedMetrics(&remoteMetric)
+
+	log.L.Info(r)
+
+	return r
+}
+
 // scheduleOne makes scheduling decision for the given pod and nodes.
 // Returns core.ErrNoNodesAvailable if nodeLister lists zero nodes, or core.FitError if the given
 // pod does not fit in any nodes.
 // 顾名思义，每次调用单个pod
 func (sched *RemoteScheduler) scheduleOne(
+	// the pod to be scheduled
 	pod *v1.Pod,
+	// obj KubeSim
 	nodeLister algorithm.NodeLister,
 	nodeInfoMap map[string]*nodeinfo.NodeInfo,
 	podQueue queue.PodQueue) (core.ScheduleResult, error) {
+
+	// Send info to server
+	_ = sched.remoteTest(pod, nodeLister, nodeInfoMap, podQueue)
 
 	result := core.ScheduleResult{}
 	nodes, err := nodeLister.List()
