@@ -11,12 +11,17 @@ service simRPC {
 
       // A client-to-server streaming RPC.
     rpc RecordFormattedMetrics(FormattedMetrics) returns (Result) {}
+    rpc RecordPodMetrics(FormattedMetrics) returns (Result) {}
 }
 
 // 测试
 // 返回四个关键值的str
 message FormattedMetrics {
     string formatted_metrics = 1;
+}
+
+message PodMetrics {
+    string pod_metrics = 1;
 }
 
 message Metrics {

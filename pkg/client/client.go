@@ -37,15 +37,15 @@ func SendFormattedMetrics(met *metrics.Metrics) {
 	log.Printf("Greeting: %d", r.GetResult())
 }
 
-// SendRemoteFormattedMetrics a test function for sending metrics to server
+// SendPodMetrics a test function for sending metrics to server
 // test
-func SendRemoteFormattedMetrics(met *metrics.RemoteMetric) string {
+func SendPodMetrics(met *metrics.Metrics) string {
 	var formatter = metrics.JSONFormatter{}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	var str, _ = formatter.RemoteFormat(met)
+	var str, _ = formatter.Format(met)
 	var metric = pb.FormattedMetrics{FormattedMetrics: str}
 
 	r, err := Client.RecordFormattedMetrics(ctx, &metric)

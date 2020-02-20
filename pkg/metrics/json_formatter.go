@@ -34,15 +34,4 @@ func (j *JSONFormatter) Format(metrics *Metrics) (string, error) {
 	return string(bytes), nil
 }
 
-// RemoteFormat implements Formatter interface.
-// Which is for remote scheduler
-func (j *JSONFormatter) RemoteFormat(metrics *RemoteMetric) (string, error) {
-	bytes, err := json.Marshal(metrics)
-	if err != nil {
-		return "", err
-	}
-
-	return string(bytes), nil
-}
-
 var _ = Formatter(&JSONFormatter{})

@@ -399,6 +399,11 @@ func (k *KubeSim) schedule() error {
 
 	// TODO: send the cluster info to server
 	// info format k.clock, k.pendingPods, k.nodeInfoMap
+	met, err := metrics.BuildMetrics(k.clock, k.nodes, k.pendingPods)
+	if err != nil {
+		return err
+	}
+	clientPkg.SendFormattedMetrics(&met)
 
 	// The scheduler makes scheduling decision.
 	events, err := k.scheduler.Schedule(k.clock, k.pendingPods, k, nodeInfoMap)

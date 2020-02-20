@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='simRPC',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\rk8s_sim.proto\x12\x06simRPC\"-\n\x10\x46ormattedMetrics\x12\x19\n\x11\x66ormatted_metrics\x18\x01 \x01(\t\"\x7f\n\x07Metrics\x12\x1c\n\x05\x63lock\x18\x01 \x01(\x0b\x32\r.simRPC.Clock\x12\x1c\n\x05nodes\x18\x02 \x01(\x0b\x32\r.simRPC.Nodes\x12\x1a\n\x04pods\x18\x03 \x01(\x0b\x32\x0c.simRPC.Pods\x12\x1c\n\x05queue\x18\x04 \x01(\x0b\x32\r.simRPC.Queue\"\"\n\x05\x43lock\x12\x19\n\x11\x63lock_metrics_Key\x18\x01 \x01(\t\"\"\n\x05Nodes\x12\x19\n\x11nodes_metrics_key\x18\x01 \x01(\t\" \n\x04Pods\x12\x18\n\x10pods_metrics_key\x18\x01 \x01(\t\"\"\n\x05Queue\x12\x19\n\x11queue_metrics_key\x18\x01 \x01(\t\"\x18\n\x06Result\x12\x0e\n\x06result\x18\x01 \x01(\t2\x82\x01\n\x06simRPC\x12\x32\n\rRecordMetrics\x12\x0f.simRPC.Metrics\x1a\x0e.simRPC.Result\"\x00\x12\x44\n\x16RecordFormattedMetrics\x12\x18.simRPC.FormattedMetrics\x1a\x0e.simRPC.Result\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\rk8s_sim.proto\x12\x06simRPC\"-\n\x10\x46ormattedMetrics\x12\x19\n\x11\x66ormatted_metrics\x18\x01 \x01(\t\"!\n\nPodMetrics\x12\x13\n\x0bpod_metrics\x18\x01 \x01(\t\"\x7f\n\x07Metrics\x12\x1c\n\x05\x63lock\x18\x01 \x01(\x0b\x32\r.simRPC.Clock\x12\x1c\n\x05nodes\x18\x02 \x01(\x0b\x32\r.simRPC.Nodes\x12\x1a\n\x04pods\x18\x03 \x01(\x0b\x32\x0c.simRPC.Pods\x12\x1c\n\x05queue\x18\x04 \x01(\x0b\x32\r.simRPC.Queue\"\"\n\x05\x43lock\x12\x19\n\x11\x63lock_metrics_Key\x18\x01 \x01(\t\"\"\n\x05Nodes\x12\x19\n\x11nodes_metrics_key\x18\x01 \x01(\t\" \n\x04Pods\x12\x18\n\x10pods_metrics_key\x18\x01 \x01(\t\"\"\n\x05Queue\x12\x19\n\x11queue_metrics_key\x18\x01 \x01(\t\"\x18\n\x06Result\x12\x0e\n\x06result\x18\x01 \x01(\t2\xc2\x01\n\x06simRPC\x12\x32\n\rRecordMetrics\x12\x0f.simRPC.Metrics\x1a\x0e.simRPC.Result\"\x00\x12\x44\n\x16RecordFormattedMetrics\x12\x18.simRPC.FormattedMetrics\x1a\x0e.simRPC.Result\"\x00\x12>\n\x10RecordPodMetrics\x12\x18.simRPC.FormattedMetrics\x1a\x0e.simRPC.Result\"\x00\x62\x06proto3')
 )
 
 
@@ -54,6 +54,37 @@ _FORMATTEDMETRICS = _descriptor.Descriptor(
   ],
   serialized_start=25,
   serialized_end=70,
+)
+
+
+_PODMETRICS = _descriptor.Descriptor(
+  name='PodMetrics',
+  full_name='simRPC.PodMetrics',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='pod_metrics', full_name='simRPC.PodMetrics.pod_metrics', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=72,
+  serialized_end=105,
 )
 
 
@@ -104,8 +135,8 @@ _METRICS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=72,
-  serialized_end=199,
+  serialized_start=107,
+  serialized_end=234,
 )
 
 
@@ -135,8 +166,8 @@ _CLOCK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=201,
-  serialized_end=235,
+  serialized_start=236,
+  serialized_end=270,
 )
 
 
@@ -166,8 +197,8 @@ _NODES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=237,
-  serialized_end=271,
+  serialized_start=272,
+  serialized_end=306,
 )
 
 
@@ -197,8 +228,8 @@ _PODS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=273,
-  serialized_end=305,
+  serialized_start=308,
+  serialized_end=340,
 )
 
 
@@ -228,8 +259,8 @@ _QUEUE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=307,
-  serialized_end=341,
+  serialized_start=342,
+  serialized_end=376,
 )
 
 
@@ -259,8 +290,8 @@ _RESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=343,
-  serialized_end=367,
+  serialized_start=378,
+  serialized_end=402,
 )
 
 _METRICS.fields_by_name['clock'].message_type = _CLOCK
@@ -268,6 +299,7 @@ _METRICS.fields_by_name['nodes'].message_type = _NODES
 _METRICS.fields_by_name['pods'].message_type = _PODS
 _METRICS.fields_by_name['queue'].message_type = _QUEUE
 DESCRIPTOR.message_types_by_name['FormattedMetrics'] = _FORMATTEDMETRICS
+DESCRIPTOR.message_types_by_name['PodMetrics'] = _PODMETRICS
 DESCRIPTOR.message_types_by_name['Metrics'] = _METRICS
 DESCRIPTOR.message_types_by_name['Clock'] = _CLOCK
 DESCRIPTOR.message_types_by_name['Nodes'] = _NODES
@@ -282,6 +314,13 @@ FormattedMetrics = _reflection.GeneratedProtocolMessageType('FormattedMetrics', 
   # @@protoc_insertion_point(class_scope:simRPC.FormattedMetrics)
   })
 _sym_db.RegisterMessage(FormattedMetrics)
+
+PodMetrics = _reflection.GeneratedProtocolMessageType('PodMetrics', (_message.Message,), {
+  'DESCRIPTOR' : _PODMETRICS,
+  '__module__' : 'k8s_sim_pb2'
+  # @@protoc_insertion_point(class_scope:simRPC.PodMetrics)
+  })
+_sym_db.RegisterMessage(PodMetrics)
 
 Metrics = _reflection.GeneratedProtocolMessageType('Metrics', (_message.Message,), {
   'DESCRIPTOR' : _METRICS,
@@ -333,8 +372,8 @@ _SIMRPC = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=370,
-  serialized_end=500,
+  serialized_start=405,
+  serialized_end=599,
   methods=[
   _descriptor.MethodDescriptor(
     name='RecordMetrics',
@@ -349,6 +388,15 @@ _SIMRPC = _descriptor.ServiceDescriptor(
     name='RecordFormattedMetrics',
     full_name='simRPC.simRPC.RecordFormattedMetrics',
     index=1,
+    containing_service=None,
+    input_type=_FORMATTEDMETRICS,
+    output_type=_RESULT,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='RecordPodMetrics',
+    full_name='simRPC.simRPC.RecordPodMetrics',
+    index=2,
     containing_service=None,
     input_type=_FORMATTEDMETRICS,
     output_type=_RESULT,

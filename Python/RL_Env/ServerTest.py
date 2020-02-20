@@ -1,4 +1,5 @@
 from concurrent import futures
+import copy
 import json
 import logging
 
@@ -23,36 +24,54 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         return k8s_sim_pb2.Result(result="1")
 
     def RecordFormattedMetrics(self, request, context):
-        metric = request
-        formattedMetrics = metric.formatted_metrics
+        metric = request.formatted_metrics
 
-        temp = json.loads(formattedMetrics)
-        # print(temp)
+        formattedMetrics = json.loads(metric)
+        print(formattedMetrics)
 
-        podName = temp['Pod']['metadata']['name']
-        print(podName)
-        podResources = temp['Pod']['spec']['containers']
-        for containerResource in podResources:
-            containerResourceLimits = containerResource['resources']['limits']
-            print("limits: ", end = "")
-            print(containerResourceLimits)
-            containerResourceRequests = containerResource['resources']['requests']
-            print("requests: ", end = "")
-            print(containerResourceRequests)
+        # podName = temp['Pod']['metadata']['name']
+        # print(podName)
+        # podResources = temp['Pod']['spec']['containers']
+        # for containerResource in podResources:
+        #     containerResourceLimits = containerResource['resources']['limits']
+        #     print("limits: ", end = "")
+        #     print(containerResourceLimits)
+        #     containerResourceRequests = containerResource['resources']['requests']
+        #     print("requests: ", end = "")
+        #     print(containerResourceRequests)
 
-        nodes = temp['Nodes']
-        for node in nodes:
-            nodeName = node['metadata']['name']
-            print(nodeName)
-            nodeStatus = node['status']
-            nodeCapacity = nodeStatus['capacity']
-            print("capacity: ", end = "")
-            print(nodeCapacity)
-            nodeAllocatable = nodeStatus['allocatable']
-            print("allocatable: ", end = "")
-            print(nodeAllocatable)
+        # nodes = temp['Nodes']
+        # for node in nodes:
+        #     nodeName = node['metadata']['name']
+        #     print(nodeName)
+        #     nodeStatus = node['status']
+        #     nodeCapacity = nodeStatus['capacity']
+        #     print("capacity: ", end = "")
+        #     print(nodeCapacity)
+        #     nodeAllocatable = nodeStatus['allocatable']
+        #     print("allocatable: ", end = "")
+        #     print(nodeAllocatable)
 
-        print("\n")
+        # print("\n")
+
+        return k8s_sim_pb2.Result(result="1")
+    
+    def RecordPodMetrics(self, request, context):
+        Metric = request.pods_metrics_key
+
+        formattedMetrics = json.loads(Metric)
+        # print(formattedMetrics)
+
+        clock = formattedMetrics['Clock']
+        print(clock, end = '')
+        podMetrics = formattedMetrics['Pods']
+        containers = podMetrics['spec']['containers']
+
+        containersResources = []
+        for container in containers:
+            resource = container['resources']
+            containersResources.append(resource)
+
 
         return k8s_sim_pb2.Result(result="1")
 

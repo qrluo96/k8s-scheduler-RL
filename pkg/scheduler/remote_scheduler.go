@@ -105,7 +105,7 @@ func (sched *RemoteScheduler) Schedule(
 		log.L.Debugf("Trying to schedule pod %s", podKey)
 
 		// ... try to bind the pod to a node.
-		result, err := sched.scheduleOne(pod, nodeLister, nodeInfoMap, pendingPods)
+		result, err := sched.scheduleOne(clock, pod, nodeLister, nodeInfoMap, pendingPods)
 
 		if err != nil {
 			updatePodStatusSchedulingFailure(clock, pod, err)
@@ -161,19 +161,15 @@ func (sched *RemoteScheduler) Schedule(
 var _ = Scheduler(&RemoteScheduler{})
 
 func (sched *RemoteScheduler) remoteTest(
+	clock clock.Clock,
 	// the pod to be scheduled
 	pod *v1.Pod,
-	// obj KubeSim
-	nodes []*v1.Node,
-	nodeInfoMap map[string]*nodeinfo.NodeInfo,
 ) string {
-	remoteMetric := metrics.RemoteMetric{
-		pod,
-		nodes,
-		nodeInfoMap,
+	met, err := metrics.BuildPodMetrics(clock, pod)
+	if err != nil {
+		log.L.Debug(err)
 	}
-
-	r := client.SendRemoteFormattedMetrics(&remoteMetric)
+	r := client.SendPodMetrics(&met)
 
 	log.L.Info(r)
 
@@ -185,6 +181,7 @@ func (sched *RemoteScheduler) remoteTest(
 // pod does not fit in any nodes.
 // 顾名思义，每次调用单个pod
 func (sched *RemoteScheduler) scheduleOne(
+	clock clock.Clock,
 	// the pod to be scheduled
 	pod *v1.Pod,
 	// obj KubeSim
@@ -202,7 +199,7 @@ func (sched *RemoteScheduler) scheduleOne(
 	}
 
 	// Send info to server
-	_ = sched.remoteTest(pod, nodes, nodeInfoMap)
+	_ = sched.remoteTest(clock, pod)
 
 	// Filter out nodes that cannot accommodate the pod.
 	nodesFiltered, failedPredicateMap, err := sched.filter(pod, nodes, nodeInfoMap, podQueue)

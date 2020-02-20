@@ -22,7 +22,6 @@ import (
 	"simulator/pkg/util"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
 )
 
 // Metrics represents a metrics at one time point, in the following structure.
@@ -32,12 +31,11 @@ import (
 // 	 Metrics[QueueMetricsKey] = queue.Metrics
 type Metrics map[string]interface{}
 
-// RemoteMetric represents the information that schduler need at one time stamp
-type RemoteMetric struct {
-	Pod         *v1.Pod
-	Nodes       []*v1.Node
-	NodeInfoMap map[string]*nodeinfo.NodeInfo
-}
+// PodMetric represents the information that schduler need at one time stamp
+// type PodMetric struct {
+// 	clock string
+// 	Pod   *v1.Pod
+// }
 
 const (
 	// ClockKey is the key associated to a clock.Clock.
@@ -78,6 +76,15 @@ func BuildMetrics(clock clock.Clock, nodes map[string]*node.Node, queue queue.Po
 	metrics[PodsMetricsKey] = podsMetrics
 	// int PendingPodsNum
 	metrics[QueueMetricsKey] = queue.Metrics()
+
+	return metrics, nil
+}
+
+func BuildPodMetrics(clock clock.Clock, pod *v1.Pod) (Metrics, error) {
+	metrics := make(map[string]interface{})
+
+	metrics[ClockKey] = clock.ToRFC3339()
+	metrics[PodsMetricsKey] = pod
 
 	return metrics, nil
 }
