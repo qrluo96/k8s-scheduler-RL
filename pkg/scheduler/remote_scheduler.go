@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Modifications copyright 2020 Qirui Luo.
+
 package scheduler
 
 import (
@@ -162,15 +164,13 @@ func (sched *RemoteScheduler) remoteTest(
 	// the pod to be scheduled
 	pod *v1.Pod,
 	// obj KubeSim
-	nodeLister algorithm.NodeLister,
+	nodes []*v1.Node,
 	nodeInfoMap map[string]*nodeinfo.NodeInfo,
-	podQueue queue.PodQueue,
 ) string {
 	remoteMetric := metrics.RemoteMetric{
 		pod,
-		nodeLister,
+		nodes,
 		nodeInfoMap,
-		podQueue,
 	}
 
 	r := client.SendRemoteFormattedMetrics(&remoteMetric)
@@ -192,9 +192,6 @@ func (sched *RemoteScheduler) scheduleOne(
 	nodeInfoMap map[string]*nodeinfo.NodeInfo,
 	podQueue queue.PodQueue) (core.ScheduleResult, error) {
 
-	// Send info to server
-	_ = sched.remoteTest(pod, nodeLister, nodeInfoMap, podQueue)
-
 	result := core.ScheduleResult{}
 	nodes, err := nodeLister.List()
 	if err != nil {
@@ -203,6 +200,9 @@ func (sched *RemoteScheduler) scheduleOne(
 	if len(nodes) == 0 {
 		return result, core.ErrNoNodesAvailable
 	}
+
+	// Send info to server
+	_ = sched.remoteTest(pod, nodes, nodeInfoMap)
 
 	// Filter out nodes that cannot accommodate the pod.
 	nodesFiltered, failedPredicateMap, err := sched.filter(pod, nodes, nodeInfoMap, podQueue)
@@ -241,6 +241,7 @@ func (sched *RemoteScheduler) scheduleOne(
 	}, err
 }
 
+//
 func (sched *RemoteScheduler) filter(
 	pod *v1.Pod,
 	nodes []*v1.Node,

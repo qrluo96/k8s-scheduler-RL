@@ -22,7 +22,6 @@ import (
 	"simulator/pkg/util"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/kubernetes/pkg/scheduler/algorithm"
 	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
 )
 
@@ -33,11 +32,11 @@ import (
 // 	 Metrics[QueueMetricsKey] = queue.Metrics
 type Metrics map[string]interface{}
 
+// RemoteMetric represents the information that schduler need at one time stamp
 type RemoteMetric struct {
 	Pod         *v1.Pod
-	NodeLister  algorithm.NodeLister
+	Nodes       []*v1.Node
 	NodeInfoMap map[string]*nodeinfo.NodeInfo
-	PodQueue    queue.PodQueue
 }
 
 const (

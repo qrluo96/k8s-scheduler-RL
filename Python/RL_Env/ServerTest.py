@@ -20,18 +20,41 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         print(pods)
         print(queue)
 
-        return k8s_sim_pb2.Result(result=1)
+        return k8s_sim_pb2.Result(result="1")
 
     def RecordFormattedMetrics(self, request, context):
         metric = request
         formattedMetrics = metric.formatted_metrics
 
         temp = json.loads(formattedMetrics)
+        # print(temp)
 
-        print(temp)
+        podName = temp['Pod']['metadata']['name']
+        print(podName)
+        podResources = temp['Pod']['spec']['containers']
+        for containerResource in podResources:
+            containerResourceLimits = containerResource['resources']['limits']
+            print("limits: ", end = "")
+            print(containerResourceLimits)
+            containerResourceRequests = containerResource['resources']['requests']
+            print("requests: ", end = "")
+            print(containerResourceRequests)
+
+        nodes = temp['Nodes']
+        for node in nodes:
+            nodeName = node['metadata']['name']
+            print(nodeName)
+            nodeStatus = node['status']
+            nodeCapacity = nodeStatus['capacity']
+            print("capacity: ", end = "")
+            print(nodeCapacity)
+            nodeAllocatable = nodeStatus['allocatable']
+            print("allocatable: ", end = "")
+            print(nodeAllocatable)
+
         print("\n")
 
-        return k8s_sim_pb2.Result(result=1)
+        return k8s_sim_pb2.Result(result="1")
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

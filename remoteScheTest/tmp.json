@@ -1,0 +1,68 @@
+{'Pod': {'kind': 'Pod', 'apiVersion': 'v1', 'metadata': {'name': 'pod-19', 'namespace': 'default', 'uid': 'pod-19', 'creationTimestamp': '2018-12-31T17: 31: 10Z', 'annotations': {'simSpec': '\n- seconds: 3360\n  resourceUsage:\n    cpu: 3\n    memory: 4Gi\n    nvidia.com/gpu: 0\n'
+            }
+        }, 'spec': {'containers': [
+                {'name': 'container', 'image': 'container', 'resources': {'limits': {'cpu': '6', 'memory': '6Gi', 'nvidia.com/gpu': '1'
+                        }, 'requests': {'cpu': '4', 'memory': '4Gi', 'nvidia.com/gpu': '1'
+                        }
+                    }
+                }
+            ], 'priority': 0
+        }, 'status': {'phase': 'Pending', 'conditions': [
+                {'type': 'PodScheduled', 'status': 'False', 'lastProbeTime': '2018-12-31T18: 30: 50Z', 'lastTransitionTime': '2018-12-31T18: 28: 00Z', 'reason': 'Unschedulable', 'message': '0/2 nodes are available: 2 Insufficient cpu,
+                    2 Insufficient nvidia.com/gpu.'
+                }
+            ]
+        }
+    }, 'Nodes': [
+        {'kind': 'Node', 'apiVersion': 'v1', 'metadata': {'name': 'node-0', 'creationTimestamp': None, 'labels': {'beta.kubernetes.io/os': 'simulated'
+                }, 'annotations': {'foo': 'bar'
+                }
+            }, 'spec': {}, 'status': {'capacity': {'cpu': '4', 'memory': '8Gi', 'nvidia.com/gpu': '1', 'pods': '2'
+                }, 'allocatable': {'cpu': '4', 'memory': '8Gi', 'nvidia.com/gpu': '1', 'pods': '2'
+                }, 'conditions': [
+                    {'type': 'Ready', 'status': 'True', 'lastHeartbeatTime': '2018-12-31T15: 00: 00Z', 'lastTransitionTime': '2018-12-31T15: 00: 00Z', 'reason': 'KubeletReady', 'message': 'kubelet is posting ready status'
+                    },
+                    {'type': 'OutOfDisk', 'status': 'False', 'lastHeartbeatTime': '2018-12-31T15: 00: 00Z', 'lastTransitionTime': '2018-12-31T15: 00: 00Z', 'reason': 'KubeletHasSufficientDisk', 'message': 'kubelet has sufficient disk space available'
+                    },
+                    {'type': 'MemoryPressure', 'status': 'False', 'lastHeartbeatTime': '2018-12-31T15: 00: 00Z', 'lastTransitionTime': '2018-12-31T15: 00: 00Z', 'reason': 'KubeletHasSufficientMemory', 'message': 'kubelet has sufficient memory available'
+                    },
+                    {'type': 'DiskPressure', 'status': 'False', 'lastHeartbeatTime': '2018-12-31T15: 00: 00Z', 'lastTransitionTime': '2018-12-31T15: 00: 00Z', 'reason': 'KubeletHasNoDiskPressure', 'message': 'kubelet has no disk pressure'
+                    },
+                    {'type': 'PIDPressure', 'status': 'False', 'lastHeartbeatTime': '2018-12-31T15: 00: 00Z', 'lastTransitionTime': '2018-12-31T15: 00: 00Z', 'reason': 'KubeletHasSufficientPID', 'message': 'kubelet has sufficient PID available'
+                    }
+                ], 'daemonEndpoints': {'kubeletEndpoint': {'Port': 0
+                    }
+                }, 'nodeInfo': {'machineID': '', 'systemUUID': '', 'bootID': '', 'kernelVersion': '', 'osImage': '', 'containerRuntimeVersion': '', 'kubeletVersion': '', 'kubeProxyVersion': '', 'operatingSystem': '', 'architecture': ''
+                }
+            }
+        },
+        {'kind': 'Node', 'apiVersion': 'v1', 'metadata': {'name': 'node-1', 'creationTimestamp': None, 'labels': {'beta.kubernetes.io/os': 'simulated'
+                }
+            }, 'spec': {}, 'status': {'capacity': {'cpu': '8', 'memory': '16Gi', 'nvidia.com/gpu': '2', 'pods': '4'
+                }, 'allocatable': {'cpu': '8', 'memory': '16Gi', 'nvidia.com/gpu': '2', 'pods': '4'
+                }, 'conditions': [
+                    {'type': 'Ready', 'status': 'True', 'lastHeartbeatTime': '2018-12-31T15: 00: 00Z', 'lastTransitionTime': '2018-12-31T15: 00: 00Z', 'reason': 'KubeletReady', 'message': 'kubelet is posting ready status'
+                    },
+                    {'type': 'OutOfDisk', 'status': 'False', 'lastHeartbeatTime': '2018-12-31T15: 00: 00Z', 'lastTransitionTime': '2018-12-31T15: 00: 00Z', 'reason': 'KubeletHasSufficientDisk', 'message': 'kubelet has sufficient disk space available'
+                    },
+                    {'type': 'MemoryPressure', 'status': 'False', 'lastHeartbeatTime': '2018-12-31T15: 00: 00Z', 'lastTransitionTime': '2018-12-31T15: 00: 00Z', 'reason': 'KubeletHasSufficientMemory', 'message': 'kubelet has sufficient memory available'
+                    },
+                    {'type': 'DiskPressure', 'status': 'False', 'lastHeartbeatTime': '2018-12-31T15: 00: 00Z', 'lastTransitionTime': '2018-12-31T15: 00: 00Z', 'reason': 'KubeletHasNoDiskPressure', 'message': 'kubelet has no disk pressure'
+                    },
+                    {'type': 'PIDPressure', 'status': 'False', 'lastHeartbeatTime': '2018-12-31T15: 00: 00Z', 'lastTransitionTime': '2018-12-31T15: 00: 00Z', 'reason': 'KubeletHasSufficientPID', 'message': 'kubelet has sufficient PID available'
+                    }
+                ], 'daemonEndpoints': {'kubeletEndpoint': {'Port': 0
+                    }
+                }, 'nodeInfo': {'machineID': '', 'systemUUID': '', 'bootID': '', 'kernelVersion': '', 'osImage': '', 'containerRuntimeVersion': '', 'kubeletVersion': '', 'kubeProxyVersion': '', 'operatingSystem': '', 'architecture': ''
+                }
+            }
+        }
+    ], 'NodeInfoMap': {'node-0': {'TransientInfo': {'TransientLock': {}, 'TransNodeInfo': {'AllocatableVolumesCount': 0, 'RequestedVolumes': 0
+                }
+            }
+        }, 'node-1': {'TransientInfo': {'TransientLock': {}, 'TransNodeInfo': {'AllocatableVolumesCount': 0, 'RequestedVolumes': 0
+                }
+            }
+        }
+    }
+}
