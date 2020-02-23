@@ -26,7 +26,7 @@ class simRPCStub(object):
         )
     self.RecordPodMetrics = channel.unary_unary(
         '/simRPC.simRPC/RecordPodMetrics',
-        request_serializer=k8s__sim__pb2.FormattedMetrics.SerializeToString,
+        request_serializer=k8s__sim__pb2.PodMetrics.SerializeToString,
         response_deserializer=k8s__sim__pb2.Result.FromString,
         )
 
@@ -71,7 +71,7 @@ def add_simRPCServicer_to_server(servicer, server):
       ),
       'RecordPodMetrics': grpc.unary_unary_rpc_method_handler(
           servicer.RecordPodMetrics,
-          request_deserializer=k8s__sim__pb2.FormattedMetrics.FromString,
+          request_deserializer=k8s__sim__pb2.PodMetrics.FromString,
           response_serializer=k8s__sim__pb2.Result.SerializeToString,
       ),
   }

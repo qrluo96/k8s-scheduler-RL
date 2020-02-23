@@ -46,9 +46,9 @@ func SendPodMetrics(met *metrics.Metrics) string {
 	defer cancel()
 
 	var str, _ = formatter.Format(met)
-	var metric = pb.FormattedMetrics{FormattedMetrics: str}
+	var metric = pb.PodMetrics{PodMetrics: str}
 
-	r, err := Client.RecordFormattedMetrics(ctx, &metric)
+	r, err := Client.RecordPodMetrics(ctx, &metric)
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}

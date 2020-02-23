@@ -27,6 +27,7 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         metric = request.formatted_metrics
 
         formattedMetrics = json.loads(metric)
+        print("Formatted metrics: ", end = '')
         print(formattedMetrics)
 
         # podName = temp['Pod']['metadata']['name']
@@ -57,21 +58,26 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         return k8s_sim_pb2.Result(result="1")
     
     def RecordPodMetrics(self, request, context):
-        Metric = request.pods_metrics_key
+        Metric = request.pod_metrics
 
         formattedMetrics = json.loads(Metric)
         # print(formattedMetrics)
 
         clock = formattedMetrics['Clock']
-        print(clock, end = '')
+        print('Clock: ', end = '')
+        print(clock)
         podMetrics = formattedMetrics['Pods']
         containers = podMetrics['spec']['containers']
 
         containersResources = []
         for container in containers:
-            resource = container['resources']
-            containersResources.append(resource)
-
+            formattedContainer = {}
+            formattedContainer['name'] = container['name']
+            formattedContainer['image'] = container['image']
+            formattedContainer['resource'] = container['resources']
+            print('Formattede container: ', end = '')
+            print(formattedContainer)
+            containersResources.append(formattedContainer)
 
         return k8s_sim_pb2.Result(result="1")
 
