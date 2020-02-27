@@ -1,176 +1,242 @@
 Metrics 2019-01-01T00:01:10+09:00
   Nodes
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
-    node-1: Pods 2(0)/4, cpu 3/8/8, memMB 5120/8192/16384, nvidia.com/gpu 1/2/2, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, cpu 5/8/8, memMB 6144/8192/16384, nvidia.com/gpu 1/2/2, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 70 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 70 s, nvidia.com/gpu 1/1/1, cpu 1/4/6, memMB 1024/4096/6144
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 70 s, nvidia.com/gpu 0/1/1, cpu 2/4/6, memMB 4096/4096/6144
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 70 s, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
+    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 70 s, cpu 3/4/6, memMB 3072/4096/6144, nvidia.com/gpu 0/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 70 s, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:02:20+09:00
   Nodes
-    node-1: Pods 2(0)/4, cpu 3/8/8, memMB 5120/8192/16384, nvidia.com/gpu 1/2/2, Failed 0
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, cpu 4/8/8, Failed 0
   Pods
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 140 s, nvidia.com/gpu 1/1/1, cpu 1/4/6, memMB 1024/4096/6144
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 140 s, nvidia.com/gpu 0/1/1, cpu 2/4/6, memMB 4096/4096/6144
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 140 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 140 s, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 140 s, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 20 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:03:30+09:00
   Nodes
-    node-0: Pods 1(0)/2, nvidia.com/gpu 1/1/1, cpu 2/4/4, memMB 4096/4096/8192, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-0: Pods 1(0)/2, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
   Pods
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 210 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 210 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 4096/4096/6144
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 210 s, cpu 2/4/6, memMB 1024/4096/6144, nvidia.com/gpu 0/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 210 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 210 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 90 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 2048/4096/6144
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:04:40+09:00
   Nodes
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
   Pods
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 280 s, cpu 2/4/6, memMB 1024/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 280 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 280 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 280 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 160 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 2048/4096/6144
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 280 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:05:50+09:00
   Nodes
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 350 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 350 s, memMB 1024/4096/6144, nvidia.com/gpu 0/1/1, cpu 2/4/6
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 350 s, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1, cpu 2/4/6
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 350 s, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 350 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 230 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 2048/4096/6144
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:07:00+09:00
   Nodes
-    node-1: Pods 2(0)/4, nvidia.com/gpu 0/2/2, cpu 4/8/8, memMB 5120/8192/16384, Failed 0
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, nvidia.com/gpu 2/2/2, cpu 4/8/8, memMB 5120/8192/16384, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 420 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 420 s, nvidia.com/gpu 0/1/1, cpu 2/4/6, memMB 1024/4096/6144
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 420 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 420 s, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 420 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 300 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 2048/4096/6144
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:08:10+09:00
   Nodes
-    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 490 s, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 490 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 490 s, cpu 2/4/6, memMB 1024/4096/6144, nvidia.com/gpu 0/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 370 s, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 490 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 490 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:09:20+09:00
   Nodes
-    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-0: Pods 1(0)/2, nvidia.com/gpu 1/1/1, cpu 2/4/4, memMB 3072/4096/8192, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 560 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 560 s, cpu 2/4/6, memMB 1024/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 560 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 560 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 440 s, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 560 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:10:30+09:00
   Nodes
-    node-0: Pods 1(0)/2, nvidia.com/gpu 1/1/1, cpu 2/4/4, memMB 4096/4096/8192, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
   Pods
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 630 s, cpu 2/4/6, memMB 1024/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 630 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 630 s, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 630 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 510 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 2048/4096/6144
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 630 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:11:40+09:00
   Nodes
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
+    node-0: Pods 1(0)/2, nvidia.com/gpu 1/1/1, cpu 2/4/4, memMB 3072/4096/8192, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 700 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 4096/4096/6144
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 700 s, cpu 2/4/6, memMB 1024/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 700 s, nvidia.com/gpu 0/1/1, cpu 2/4/6, memMB 4096/4096/6144
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 700 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 700 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 3072/4096/6144
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 580 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:12:50+09:00
   Nodes
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, nvidia.com/gpu 2/2/2, cpu 4/8/8, memMB 5120/8192/16384, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 770 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 4096/4096/6144
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 770 s, nvidia.com/gpu 0/1/1, cpu 2/4/6, memMB 1024/4096/6144
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 770 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 650 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 770 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 770 s, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:14:00+09:00
   Nodes
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 840 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 4096/4096/6144
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 840 s, nvidia.com/gpu 0/1/1, cpu 2/4/6, memMB 1024/4096/6144
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 840 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 840 s, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 720 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 840 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:15:10+09:00
   Nodes
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
-    node-1: Pods 2(0)/4, nvidia.com/gpu 0/2/2, cpu 4/8/8, memMB 5120/8192/16384, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 910 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 910 s, cpu 2/4/6, memMB 1024/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 910 s, nvidia.com/gpu 0/1/1, cpu 2/4/6, memMB 4096/4096/6144
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 910 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 790 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 910 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:16:20+09:00
   Nodes
-    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-1: Pods 2(0)/4, nvidia.com/gpu 2/2/2, cpu 4/8/8, memMB 5120/8192/16384, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 980 s, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 980 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 980 s, cpu 2/4/6, memMB 1024/4096/6144, nvidia.com/gpu 0/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 860 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 980 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 980 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:17:30+09:00
   Nodes
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-1: Pods 2(0)/4, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, cpu 4/8/8, Failed 0
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
   Pods
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1050 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 1050 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 1/1/1
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1050 s, nvidia.com/gpu 0/1/1, cpu 2/4/6, memMB 1024/4096/6144
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 1050 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 3072/4096/6144
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1050 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 930 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
   Queue
     PendingPods 8
 
 Metrics 2019-01-01T00:18:40+09:00
   Nodes
-    node-0: Pods 1(0)/2, memMB 4096/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
-    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 0/2/2, Failed 0
+    node-0: Pods 1(0)/2, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, cpu 2/4/4, Failed 0
+    node-1: Pods 2(0)/4, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, cpu 4/8/8, Failed 0
   Pods
-    default/pod-1: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 1120 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 4096/4096/6144
-    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1120 s, memMB 1024/4096/6144, nvidia.com/gpu 0/1/1, cpu 2/4/6
-    default/pod-2: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1120 s, cpu 2/4/6, memMB 4096/4096/6144, nvidia.com/gpu 0/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 1120 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1120 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 3072/4096/6144
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 1000 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
+  Queue
+    PendingPods 8
+
+Metrics 2019-01-01T00:19:50+09:00
+  Nodes
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, nvidia.com/gpu 2/2/2, cpu 4/8/8, memMB 5120/8192/16384, Failed 0
+  Pods
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 1190 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1190 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 1070 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
+  Queue
+    PendingPods 8
+
+Metrics 2019-01-01T00:21:00+09:00
+  Nodes
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
+  Pods
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 1260 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 1140 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 2048/4096/6144
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1260 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+  Queue
+    PendingPods 8
+
+Metrics 2019-01-01T00:22:10+09:00
+  Nodes
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, nvidia.com/gpu 2/2/2, cpu 4/8/8, memMB 5120/8192/16384, Failed 0
+  Pods
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1330 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 3072/4096/6144
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 1210 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 1330 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+  Queue
+    PendingPods 8
+
+Metrics 2019-01-01T00:23:20+09:00
+  Nodes
+    node-0: Pods 1(0)/2, cpu 2/4/4, memMB 3072/4096/8192, nvidia.com/gpu 1/1/1, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
+  Pods
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 1400 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1400 s, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 1280 s, cpu 2/4/6, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1
+  Queue
+    PendingPods 8
+
+Metrics 2019-01-01T00:24:30+09:00
+  Nodes
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
+    node-0: Pods 1(0)/2, nvidia.com/gpu 1/1/1, cpu 2/4/4, memMB 3072/4096/8192, Failed 0
+  Pods
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 1350 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 2048/4096/6144
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 1470 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1470 s, nvidia.com/gpu 1/1/1, cpu 2/4/6, memMB 3072/4096/6144
+  Queue
+    PendingPods 8
+
+Metrics 2019-01-01T00:25:40+09:00
+  Nodes
+    node-0: Pods 1(0)/2, nvidia.com/gpu 1/1/1, cpu 2/4/4, memMB 3072/4096/8192, Failed 0
+    node-1: Pods 2(0)/4, cpu 4/8/8, memMB 5120/8192/16384, nvidia.com/gpu 2/2/2, Failed 0
+  Pods
+    default/pod-2: prio 0, bound at 2019-01-01T00:00:00+09:00 on node-0, status Ok, elapsed 1540 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-0: prio 1, bound at 2019-01-01T00:00:00+09:00 on node-1, status Ok, elapsed 1540 s, cpu 2/4/6, memMB 3072/4096/6144, nvidia.com/gpu 1/1/1
+    default/pod-3: prio 1, bound at 2019-01-01T00:02:00+09:00 on node-1, status Ok, elapsed 1420 s, memMB 2048/4096/6144, nvidia.com/gpu 1/1/1, cpu 2/4/6
   Queue
     PendingPods 8
 
