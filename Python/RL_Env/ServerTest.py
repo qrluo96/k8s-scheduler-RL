@@ -2,6 +2,8 @@ from concurrent import futures
 import copy
 import json
 import logging
+import threading
+import time
 
 import grpc
 
@@ -29,31 +31,6 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         formattedMetrics = json.loads(metric)
         print("Formatted metrics: ", end = '')
         print(formattedMetrics)
-
-        # podName = temp['Pod']['metadata']['name']
-        # print(podName)
-        # podResources = temp['Pod']['spec']['containers']
-        # for containerResource in podResources:
-        #     containerResourceLimits = containerResource['resources']['limits']
-        #     print("limits: ", end = "")
-        #     print(containerResourceLimits)
-        #     containerResourceRequests = containerResource['resources']['requests']
-        #     print("requests: ", end = "")
-        #     print(containerResourceRequests)
-
-        # nodes = temp['Nodes']
-        # for node in nodes:
-        #     nodeName = node['metadata']['name']
-        #     print(nodeName)
-        #     nodeStatus = node['status']
-        #     nodeCapacity = nodeStatus['capacity']
-        #     print("capacity: ", end = "")
-        #     print(nodeCapacity)
-        #     nodeAllocatable = nodeStatus['allocatable']
-        #     print("allocatable: ", end = "")
-        #     print(nodeAllocatable)
-
-        # print("\n")
 
         return k8s_sim_pb2.Result(result="1")
     
@@ -89,6 +66,42 @@ def serve():
     server.start()
     server.wait_for_termination()
 
+class serveThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        serve()
+
+class testThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        for i in range(2):
+            print(i)
+            time.sleep(1)
+        print("test thread exited")
+
+threads = []
+            
 if __name__ == '__main__':
     logging.basicConfig()
-    serve()
+
+    serveThread = serveThread()
+    testThread = testThread()
+
+    serveThread.start()
+    testThread.start()
+
+    print("all started")
+
+    threads.append(serveThread)
+    threads.append(testThread)
+
+    for t in threads:
+        t.join()
+
+    print("all exited")
+
+    
