@@ -10,21 +10,17 @@ import grpc
 import k8s_sim_pb2
 import k8s_sim_pb2_grpc
 
+CLUSTERDATA = {}
+PODDATA = {}
+
+def GetClusterData():
+    return CLUSTERDATA
+
+def GetPodData():
+    return PODDATA
+
+
 class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
-    def RecordMetrics(self, request, context):
-        metrics = request
-        clock = metrics.clock.clock_metrics_Key
-        node = metrics.nodes.nodes_metrics_key
-        pods = metrics.pods.pods_metrics_key
-        queue = metrics.queue.queue_metrics_key
-
-        print(clock)
-        print(node)
-        print(pods)
-        print(queue)
-
-        return k8s_sim_pb2.Result(result="1")
-
     def RecordFormattedMetrics(self, request, context):
         metric = request.formatted_metrics
 
@@ -52,9 +48,11 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
             formattedContainer['name'] = container['name']
             formattedContainer['image'] = container['image']
             formattedContainer['resource'] = container['resources']
-            print('Formattede container: ', end = '')
-            print(formattedContainer)
+            # print('Formattede container: ', end = '')
+            # print(formattedContainer)
             containersResources.append(formattedContainer)
+
+        K8SDATA[clock] = [podMetrics, containersResources]
 
         return k8s_sim_pb2.Result(result="1")
 
@@ -66,46 +64,5 @@ def serve():
     server.start()
     server.wait_for_termination()
 
-class serveThread(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
-
-    def run(self):
-        serve()
-
-class testThread(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
-
-    def run(self):
-        global testNum
-        testNum += 1
-        for i in range(2):
-            print(i)
-            time.sleep(1)
-        print("test thread exited")
-
-threads = []
-testNum = 1
-            
 if __name__ == '__main__':
-    logging.basicConfig()
-
-    # serveThread = serveThread()
-    testThread = testThread()
-
-    # serveThread.start()
-    testThread.start()
-
-    print("all started")
-
-    # threads.append(serveThread)
-    threads.append(testThread)
-
-    for t in threads:
-        t.join()
-
-    print("all exited")
-    print("testNum: %d", testNum)
-
-    
+    serve()

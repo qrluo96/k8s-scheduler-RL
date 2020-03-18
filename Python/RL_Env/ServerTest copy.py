@@ -65,47 +65,8 @@ def serve():
     server.add_insecure_port('[::]:50051')
     server.start()
     server.wait_for_termination()
-
-class serveThread(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
-
-    def run(self):
-        serve()
-
-class testThread(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
-
-    def run(self):
-        global testNum
-        testNum += 1
-        for i in range(2):
-            print(i)
-            time.sleep(1)
-        print("test thread exited")
-
-threads = []
-testNum = 1
             
 if __name__ == '__main__':
-    logging.basicConfig()
-
-    # serveThread = serveThread()
-    testThread = testThread()
-
-    # serveThread.start()
-    testThread.start()
-
-    print("all started")
-
-    # threads.append(serveThread)
-    threads.append(testThread)
-
-    for t in threads:
-        t.join()
-
-    print("all exited")
-    print("testNum: %d", testNum)
+    serve()
 
     

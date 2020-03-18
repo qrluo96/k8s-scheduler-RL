@@ -8,7 +8,6 @@ import time
 # args = shlex.split(cmd)
 
 child = subprocess.Popen('go run ../remoteScheTest/*.go --config=../remoteScheTest/config', shell=True, start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-# child = subprocess.Popen(args, start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 print("Tester pid: ", end = '')
 print(child.pid)
