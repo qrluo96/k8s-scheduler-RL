@@ -81,17 +81,22 @@ class K8sEnv(gym.Env):
             node_resources[node_name] = node_data['status']['allocatable']
         
         node_num = len(node_names)
-        lows = np.zeros((node_num, 4))
-        highs = []
+
+        discrete_spaces = []
         for name in node_names:
             cpu = node_resources[name]['cpu']
             mem = node_resources[name]['memory']
+            mem_suffix = mem[len(mem) - 2:]
+            if mem_suffix != 'Gi':
+                raise Exception('The unit should be \'Gi\'')
+            mem_int = int(mem[:-2])
             gpu = node_resources[name]['nvidia.com/gpu']
             pod = node_resources[name]['pods']
-            high = [cpu, mem, gpu, pod]
-            highs.append(high)
-        highs = np.array(highs)
+            resources_limit = [cpu, mem_int, gpu, pod]
+
+            discrete_space = spaces.MultiDiscrete(resources_limit)
+            discrete_spaces.append(discrete_space)
 
         self.action_space = spaces.Discrete(node_num)
-        self.observation_space = spaces.Box(lows, highs, dtype=np.uint32)
+        self.observation_space = spaces.Tuple(tuple(discrete_spaces))
 
