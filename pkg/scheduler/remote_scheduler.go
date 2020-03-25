@@ -32,7 +32,6 @@ import (
 	"simulator/pkg/client"
 	"simulator/pkg/clock"
 	l "simulator/pkg/log"
-	"simulator/pkg/metrics"
 	"simulator/pkg/queue"
 	"simulator/pkg/util"
 )
@@ -104,6 +103,9 @@ func (sched *RemoteScheduler) Schedule(
 		}
 		log.L.Debugf("Trying to schedule pod %s", podKey)
 
+		// Send pod info to server
+		_ = sched.remotePodTest(clock, pod)
+
 		// ... try to bind the pod to a node.
 		result, err := sched.scheduleOne(clock, pod, nodeLister, nodeInfoMap, pendingPods)
 
@@ -160,16 +162,33 @@ func (sched *RemoteScheduler) Schedule(
 
 var _ = Scheduler(&RemoteScheduler{})
 
-func (sched *RemoteScheduler) remoteTest(
+// func (sched *RemoteScheduler) remoteTest(
+// 	clock clock.Clock,
+// 	// the pod to be scheduled
+// 	pod *v1.Pod,
+// ) string {
+// 	met, err := metrics.BuildPodMetrics(clock, pod)
+// 	if err != nil {
+// 		log.L.Debug(err)
+// 	}
+// 	r := client.SendPodMetrics(&met)
+
+// 	log.L.Info(r)
+
+// 	return r
+// }
+
+// type podMetric struct {
+// 	Clock clock.Clock `json: "Clock"`
+// 	Pod   *v1.Pod     `json:",inline"`
+// }
+
+func (sched *RemoteScheduler) remotePodTest(
 	clock clock.Clock,
 	// the pod to be scheduled
 	pod *v1.Pod,
 ) string {
-	met, err := metrics.BuildPodMetrics(clock, pod)
-	if err != nil {
-		log.L.Debug(err)
-	}
-	r := client.SendPodMetrics(&met)
+	r := client.SendPodOnlyMetrics(clock, pod)
 
 	log.L.Info(r)
 
@@ -197,9 +216,6 @@ func (sched *RemoteScheduler) scheduleOne(
 	if len(nodes) == 0 {
 		return result, core.ErrNoNodesAvailable
 	}
-
-	// Send info to server
-	_ = sched.remoteTest(clock, pod)
 
 	// Filter out nodes that cannot accommodate the pod.
 	nodesFiltered, failedPredicateMap, err := sched.filter(pod, nodes, nodeInfoMap, podQueue)

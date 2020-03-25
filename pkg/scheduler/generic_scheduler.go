@@ -152,6 +152,90 @@ func (sched *GenericScheduler) Schedule(
 	return results, nil
 }
 
+// ScheduleRemote implements Scheduler interface using RL.
+// Schedules pods in one-by-one manner by using registered extenders and plugins.
+// schedule入口
+func (sched *GenericScheduler) ScheduleRemote(
+	clock clock.Clock,
+	pendingPods queue.PodQueue,
+	nodeLister algorithm.NodeLister,
+	nodeInfoMap map[string]*nodeinfo.NodeInfo) ([]Event, error) {
+
+	results := []Event{}
+
+	for {
+		// For each pod popped from the front of the queue, ...
+		pod, err := pendingPods.Front() // not pop a pod here; it may fail to any node
+		if err != nil {
+			if err == queue.ErrEmptyQueue {
+				break
+			} else {
+				return []Event{}, errors.New("Unexpected error raised by Queueu.Pop()")
+			}
+		}
+
+		log.L.Tracef("Trying to schedule pod %v", pod)
+
+		podKey, err := util.PodKey(pod)
+		if err != nil {
+			return []Event{}, err
+		}
+		log.L.Debugf("Trying to schedule pod %s", podKey)
+
+		// ... try to bind the pod to a node.
+		result, err := sched.scheduleOne(pod, nodeLister, nodeInfoMap, pendingPods)
+
+		if err != nil {
+			updatePodStatusSchedulingFailure(clock, pod, err)
+
+			// If failed to select a node that can accommodate the pod, ...
+			if fitError, ok := err.(*core.FitError); ok {
+				log.L.Tracef("Pod %v does not fit in any node", pod)
+				log.L.Debugf("Pod %s does not fit in any node", podKey)
+
+				// ... and preemption is enabled, ...
+				if sched.preemptionEnabled {
+					log.L.Debug("Trying preemption")
+
+					// ... try to preempt other low-priority pods.
+					delEvents, err := sched.preempt(pod, pendingPods, nodeLister, nodeInfoMap, fitError)
+					if err != nil {
+						return []Event{}, err
+					}
+
+					// Delete the victim pods.
+					results = append(results, delEvents...)
+				}
+
+				// Else, stop the scheduling process at this clock.
+				break
+			} else {
+				return []Event{}, nil
+			}
+		}
+
+		// If found a node that can accommodate the pod, ...
+		log.L.Debugf("Selected node %s", result.SuggestedHost)
+
+		pod, _ = pendingPods.Pop()
+		updatePodStatusSchedulingSucceess(clock, pod)
+		if err := pendingPods.RemoveNominatedNode(pod); err != nil {
+			return []Event{}, err
+		}
+
+		nodeInfo, ok := nodeInfoMap[result.SuggestedHost]
+		if !ok {
+			return []Event{}, fmt.Errorf("No node named %s", result.SuggestedHost)
+		}
+		nodeInfo.AddPod(pod)
+
+		// ... then bind it to the node.
+		results = append(results, &BindEvent{Pod: pod, ScheduleResult: result})
+	}
+
+	return results, nil
+}
+
 var _ = Scheduler(&GenericScheduler{})
 
 // scheduleOne makes scheduling decision for the given pod and nodes.

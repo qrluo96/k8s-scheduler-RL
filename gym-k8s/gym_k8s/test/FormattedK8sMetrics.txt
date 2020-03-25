@@ -1,0 +1,32 @@
+Formatted metrics: {
+    'Clock': '2019-01-01T02:32:30+09:00', 
+    'Nodes': {
+        'node-0': {
+            'Allocatable': {
+                'cpu': '4', 'memory': '8Gi', 'nvidia.com/gpu': '1', 'pods': '2'}, 
+            'RunningPodsNum': 1, 
+            'TerminatingPodsNum': 0, 
+            'FailedPodsNum': 0, 
+            'TotalResourceRequest': {
+                'cpu': '4', 'memory': '4Gi', 'nvidia.com/gpu': '1'}, 
+            'TotalResourceUsage': {
+                'cpu': '2', 'memory': '4Gi', 'nvidia.com/gpu': '1'}}, 
+        'node-1': {
+            'Allocatable': {
+                'cpu': '8', 'memory': '16Gi', 'nvidia.com/gpu': '2', 'pods': '4'}, 
+            'RunningPodsNum': 2, 
+            'TerminatingPodsNum': 0, 
+            'FailedPodsNum': 0, 
+            'TotalResourceRequest': {
+                'cpu': '8', 'memory': '8Gi', 'nvidia.com/gpu': '2'}, 
+            'TotalResourceUsage': {
+                'cpu': '6', 'memory': '2Gi', 'nvidia.com/gpu': '0'}}}, 
+        'Pods': {
+            'default/pod-2': {
+                'ResourceRequest': {'cpu': '4', 'memory': '4Gi', 'nvidia.com/gpu': '1'}, 'ResourceLimit': {'cpu': '6', 'memory': '6Gi', 'nvidia.com/gpu': '1'}, 'ResourceUsage': {'cpu': '2', 'memory': '4Gi', 'nvidia.com/gpu': '1'}, 'BoundAt': '2019-01-01T00:00:00+09:00', 'Node': 'node-0', 'ExecutedSeconds': 9150, 'Priority': 0, 'Status': 'Ok'}, 
+            'default/pod-5': {
+                'ResourceRequest': {'cpu': '4', 'memory': '4Gi', 'nvidia.com/gpu': '1'}, 'ResourceLimit': {'cpu': '6', 'memory': '6Gi', 'nvidia.com/gpu': '1'}, 'ResourceUsage': {'cpu': '2', 'memory': '1Gi', 'nvidia.com/gpu': '0'}, 'BoundAt': '2019-01-01T02:05:00+09:00', 'Node': 'node-1', 'ExecutedSeconds': 1650, 'Priority': 0, 'Status': 'Ok'}, 
+            'default/pod-6': {
+                'ResourceRequest': {'cpu': '4', 'memory': '4Gi', 'nvidia.com/gpu': '1'}, 'ResourceLimit': {'cpu': '6', 'memory': '6Gi', 'nvidia.com/gpu': '1'}, 'ResourceUsage': {'cpu': '4', 'memory': '1Gi', 'nvidia.com/gpu': '0'}, 'BoundAt': '2019-01-01T02:05:00+09:00', 'Node': 'node-1', 'ExecutedSeconds': 1650, 'Priority': 0, 'Status': 'Ok'}}, 
+    'Queue': {'PendingPodsNum': 8}
+}

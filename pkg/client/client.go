@@ -2,13 +2,17 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"log"
 	"time"
 
 	pb "simulator/protos"
 
+	"simulator/pkg/clock"
 	"simulator/pkg/metrics"
+
+	v1 "k8s.io/api/core/v1"
 )
 
 var Client pb.SimRPCClient
@@ -39,14 +43,48 @@ func SendFormattedMetrics(met *metrics.Metrics) {
 
 // SendPodMetrics a test function for sending metrics to server
 // test
-func SendPodMetrics(met *metrics.Metrics) string {
-	var formatter = metrics.JSONFormatter{}
+// func SendPodMetrics(met *metrics.Metrics) string {
+// 	var formatter = metrics.JSONFormatter{}
+
+// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+// 	defer cancel()
+
+// 	var str, _ = formatter.Format(met)
+// 	var metric = pb.PodMetrics{PodMetrics: str}
+
+// 	r, err := Client.RecordPodMetrics(ctx, &metric)
+// 	if err != nil {
+// 		log.Fatalf("could not greet: %v", err)
+// 	}
+// 	log.Printf("Greeting: %d", r.GetResult())
+
+// 	return r.Result
+// }
+
+// SendPodOnlyMetrics a test function for sending metrics to server
+// test
+
+type podMetric struct {
+	Clock clock.Clock `json: "Clock"`
+	Pod   *v1.Pod     `json:",inline"`
+}
+
+// SendPodOnlyMetrics a test function for sending metrics to server
+// test
+func SendPodOnlyMetrics(clock clock.Clock, pod *v1.Pod) string {
+	podMetric := podMetric{
+		Clock: clock,
+		Pod:   pod,
+	}
+
+	bytes, _ := json.Marshal(podMetric)
+	podData := string(bytes)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	var str, _ = formatter.Format(met)
-	var metric = pb.PodMetrics{PodMetrics: str}
+	// var str, _ = formatter.Format(met)
+	var metric = pb.PodMetrics{PodMetrics: podData}
 
 	r, err := Client.RecordPodMetrics(ctx, &metric)
 	if err != nil {

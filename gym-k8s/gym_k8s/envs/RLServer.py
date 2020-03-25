@@ -30,11 +30,16 @@ def AddPodData(key, value):
 
 class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
     def RecordFormattedMetrics(self, request, context):
+        global CLUSTERDATA
+
         metric = request.formatted_metrics
 
         formattedMetrics = json.loads(metric)
         # print("Formatted metrics: ", end = '')
         # print(formattedMetrics)
+
+        # print("Clock: ", end = '')
+
 
         return k8s_sim_pb2.Result(result="1")
     
@@ -44,27 +49,27 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         Metric = request.pod_metrics
 
         formattedMetrics = json.loads(Metric)
-        # print(formattedMetrics)
+        print(formattedMetrics)
 
-        clock = formattedMetrics['Clock']
-        # print('Clock: ', end = '')
-        clock = str(clock)
-        # print(clock)
-        podMetrics = formattedMetrics['Pods']
-        containers = podMetrics['spec']['containers']
+        # clock = formattedMetrics['Clock']
+        # # print('Clock: ', end = '')
+        # clock = str(clock)
+        # # print(clock)
+        # podMetrics = formattedMetrics['Pods']
+        # containers = podMetrics['spec']['containers']
 
-        containersResources = []
-        for container in containers:
-            formattedContainer = {}
-            formattedContainer['name'] = container['name']
-            formattedContainer['image'] = container['image']
-            formattedContainer['resource'] = container['resources']
-            # print('Formattede container: ', end = '')
-            # print(formattedContainer)
-            containersResources.append(formattedContainer)
+        # containersResources = []
+        # for container in containers:
+        #     formattedContainer = {}
+        #     formattedContainer['name'] = container['name']
+        #     formattedContainer['image'] = container['image']
+        #     formattedContainer['resource'] = container['resources']
+        #     # print('Formattede container: ', end = '')
+        #     # print(formattedContainer)
+        #     containersResources.append(formattedContainer)
 
-        PODDATA[clock] = [podMetrics, containersResources]
-        # print(len(PODDATA))
+        # PODDATA[clock] = [podMetrics, containersResources]
+        # # print(len(PODDATA))
 
         return k8s_sim_pb2.Result(result="1")
 
