@@ -12,10 +12,18 @@ import gym_k8s.envs.server as server
 observation space:
     CPU     MEM     GPU    pod
 ┌───────┬───────┬───────┬───────┐
+│   x   │   x   │   x   │   x   │
 ├───────┼───────┼───────┼───────┤
  ...............................     num of nodes
 ├───────┼───────┼───────┼───────┤
 └───────┴───────┴───────┴───────┘
+
+x = [
+    Allocatable resource
+    Total resource request
+    Total resource usage
+    ]
+
 '''
 
 class K8sEnv(gym.Env):
