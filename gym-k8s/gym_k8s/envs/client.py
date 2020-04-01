@@ -10,6 +10,7 @@ import gym_k8s.envs.threading_extender as threading_extender
 class ClientThread(threading.Thread):
     childThread = None
     _pod_data = None
+    _cluster_data = None
 
     def __init__(self):
         threading.Thread.__init__(self, daemon=True)
@@ -31,6 +32,7 @@ class ClientThread(threading.Thread):
         print(self.childThread.poll())
 
         self._pod_data = RLServer.PODDATA
+        self._cluster_data = RLServer.CLUSTERDATA
 
         for i in range(8):
             print(len(self._pod_data))

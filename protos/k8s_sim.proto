@@ -12,6 +12,7 @@ service simRPC {
       // A client-to-server streaming RPC.
     rpc RecordFormattedMetrics(FormattedMetrics) returns (Result) {}
     rpc RecordPodMetrics(PodMetrics) returns (Result) {}
+    rpc ListScheduleResult(PodMetrics) returns (ScheduleResult) {}
 }
 
 // 测试
@@ -22,6 +23,13 @@ message FormattedMetrics {
 
 message PodMetrics {
     string pod_metrics = 1;
+}
+
+message ScheduleResult {
+    string suggest_host = 1;
+    int32 evaluated_nodes = 2;
+    int32 feasible_nodes = 3;
+    int32 schedule_process = 4;
 }
 
 message Metrics {

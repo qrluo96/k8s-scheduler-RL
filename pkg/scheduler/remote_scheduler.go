@@ -104,7 +104,7 @@ func (sched *RemoteScheduler) Schedule(
 		log.L.Debugf("Trying to schedule pod %s", podKey)
 
 		// Send pod info to server
-		_ = sched.remotePodTest(clock, pod)
+		_ = sched.sendPodInfo(clock, pod)
 
 		// ... try to bind the pod to a node.
 		result, err := sched.scheduleOne(clock, pod, nodeLister, nodeInfoMap, pendingPods)
@@ -183,7 +183,7 @@ var _ = Scheduler(&RemoteScheduler{})
 // 	Pod   *v1.Pod     `json:",inline"`
 // }
 
-func (sched *RemoteScheduler) remotePodTest(
+func (sched *RemoteScheduler) sendPodInfo(
 	clock clock.Clock,
 	// the pod to be scheduled
 	pod *v1.Pod,
@@ -193,6 +193,27 @@ func (sched *RemoteScheduler) remotePodTest(
 	log.L.Info(r)
 
 	return r
+}
+
+func (sched *RemoteScheduler) remoteScheduleOne(
+	clock clock.Clock,
+	// the pod to be scheduled
+	pod *v1.Pod,
+	// obj KubeSim
+	nodeLister algorithm.NodeLister,
+	nodeInfoMap map[string]*nodeinfo.NodeInfo,
+	podQueue queue.PodQueue) (core.ScheduleResult, error) {
+
+	// Send information of the pod that to be scheduled
+	_ = sched.sendPodInfo(clock, pod)
+
+	// TODO: complete the result part
+	result := core.ScheduleResult{}
+	result.EvaluatedNodes = 0
+	result.FeasibleNodes = 0
+	result.SuggestedHost = "TODO"
+
+	return result, nil
 }
 
 // scheduleOne makes scheduling decision for the given pod and nodes.

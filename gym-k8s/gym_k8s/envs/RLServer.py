@@ -50,6 +50,7 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
 
         return k8s_sim_pb2.Result(result="1")
 
+    # CLUSTERDATA[clock] {'node-0': {'allocatable': {'cpu': 4, 'mem': 8, 'gpu': 1, 'pod': 2}, 'request': {'cpu': 4, 'mem': 4, 'gpu': 1, 'pod': 1}, 'usage': {'cpu': 3, 'mem': 4, 'gpu': 0, 'pod': 1}}, 'node-1': {'allocatable': {'cpu': 8, 'mem': 16, 'gpu': 2, 'pod': 4}, 'request': {'cpu': 8, 'mem': 8, 'gpu': 2, 'pod': 2}, 'usage': {'cpu': 6, 'mem': 6, 'gpu': 1, 'pod': 2}}}
     def add_cluster_data(self, cluster_data):
         global CLUSTERDATA
 
