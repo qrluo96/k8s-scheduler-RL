@@ -409,6 +409,7 @@ func (k *KubeSim) schedule() error {
 
 	// The scheduler makes scheduling decision.
 	events, err := k.scheduler.Schedule(k.clock, k.pendingPods, k, nodeInfoMap)
+	// events, err := k.scheduler.RemoteSchedule(k.clock, k.pendingPods, k, nodeInfoMap)
 	if err != nil {
 		return err
 	}

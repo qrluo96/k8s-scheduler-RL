@@ -71,7 +71,7 @@ func (sched *RemoteScheduler) AddPrioritizer(prioritizer priorities.PriorityConf
 	sched.prioritizers = append(sched.prioritizers, prioritizer)
 }
 
-// Schedule implements Scheduler interface.
+// Schedule implements remote Scheduler interface.
 // Schedules pods in one-by-one manner by using registered extenders and plugins.
 // schedule入口
 // events, err := k.scheduler.Schedule(k.clock, k.pendingPods, k, nodeInfoMap)
@@ -107,35 +107,11 @@ func (sched *RemoteScheduler) Schedule(
 		_ = sched.sendPodInfo(clock, pod)
 
 		// ... try to bind the pod to a node.
-		result, err := sched.scheduleOne(clock, pod, nodeLister, nodeInfoMap, pendingPods)
+		result, err := sched.ScheduleOne(clock, pod, nodeLister, nodeInfoMap, pendingPods)
 
 		if err != nil {
-			updatePodStatusSchedulingFailure(clock, pod, err)
-
-			// If failed to select a node that can accommodate the pod, ...
-			if fitError, ok := err.(*core.FitError); ok {
-				log.L.Tracef("Pod %v does not fit in any node", pod)
-				log.L.Debugf("Pod %s does not fit in any node", podKey)
-
-				// ... and preemption is enabled, ...
-				if sched.preemptionEnabled {
-					log.L.Debug("Trying preemption")
-
-					// ... try to preempt other low-priority pods.
-					delEvents, err := sched.preempt(pod, pendingPods, nodeLister, nodeInfoMap, fitError)
-					if err != nil {
-						return []Event{}, err
-					}
-
-					// Delete the victim pods.
-					results = append(results, delEvents...)
-				}
-
-				// Else, stop the scheduling process at this clock.
-				break
-			} else {
-				return []Event{}, nil
-			}
+			log.L.Tracef("Pod %v does not fit in any node", pod)
+			log.L.Debugf("Pod %s does not fit in any node", podKey)
 		}
 
 		// If found a node that can accommodate the pod, ...
@@ -195,7 +171,7 @@ func (sched *RemoteScheduler) sendPodInfo(
 	return r
 }
 
-func (sched *RemoteScheduler) remoteScheduleOne(
+func (sched *RemoteScheduler) ScheduleOne(
 	clock clock.Clock,
 	// the pod to be scheduled
 	pod *v1.Pod,
@@ -204,75 +180,23 @@ func (sched *RemoteScheduler) remoteScheduleOne(
 	nodeInfoMap map[string]*nodeinfo.NodeInfo,
 	podQueue queue.PodQueue) (core.ScheduleResult, error) {
 
+	result := core.ScheduleResult{}
 	// Send information of the pod that to be scheduled
-	_ = sched.sendPodInfo(clock, pod)
+	remoteResult := client.ListScheduleResult(clock, pod)
+
+	ScheduleProcess := remoteResult.ScheduleProcess
+	if ScheduleProcess != 0 {
+		err := errors.New("Not fit into any node")
+
+		return result, err
+	}
 
 	// TODO: complete the result part
-	result := core.ScheduleResult{}
-	result.EvaluatedNodes = 0
-	result.FeasibleNodes = 0
-	result.SuggestedHost = "TODO"
+	result.EvaluatedNodes = remoteResult.EvaluatedNodes
+	result.FeasibleNodes = remoteResult.FeasibleNodes
+	result.SuggestedHost = remoteResult.SuggestHost
 
 	return result, nil
-}
-
-// scheduleOne makes scheduling decision for the given pod and nodes.
-// Returns core.ErrNoNodesAvailable if nodeLister lists zero nodes, or core.FitError if the given
-// pod does not fit in any nodes.
-// 顾名思义，每次调用单个pod
-func (sched *RemoteScheduler) scheduleOne(
-	clock clock.Clock,
-	// the pod to be scheduled
-	pod *v1.Pod,
-	// obj KubeSim
-	nodeLister algorithm.NodeLister,
-	nodeInfoMap map[string]*nodeinfo.NodeInfo,
-	podQueue queue.PodQueue) (core.ScheduleResult, error) {
-
-	result := core.ScheduleResult{}
-	nodes, err := nodeLister.List()
-	if err != nil {
-		return result, err
-	}
-	if len(nodes) == 0 {
-		return result, core.ErrNoNodesAvailable
-	}
-
-	// Filter out nodes that cannot accommodate the pod.
-	nodesFiltered, failedPredicateMap, err := sched.filter(pod, nodes, nodeInfoMap, podQueue)
-	if err != nil {
-		return result, err
-	}
-
-	switch len(nodesFiltered) {
-	case 0: // The pod doesn't fit in any node.
-		return result, &core.FitError{
-			Pod:              pod,
-			NumAllNodes:      len(nodes),
-			FailedPredicates: failedPredicateMap,
-		}
-	case 1: // Only one node can accommodate the pod; just return it.
-		return core.ScheduleResult{
-			SuggestedHost:  nodesFiltered[0].Name,
-			EvaluatedNodes: 1 + len(failedPredicateMap),
-			FeasibleNodes:  1,
-		}, nil
-	}
-
-	// Prioritize nodes that have passed the filtering phase.
-	prios, err := sched.prioritize(pod, nodesFiltered, nodeInfoMap, podQueue)
-	if err != nil {
-		return result, err
-	}
-
-	// Select the node that has the highest score.
-	host, err := sched.selectHost(prios)
-
-	return core.ScheduleResult{
-		SuggestedHost:  host,
-		EvaluatedNodes: len(nodesFiltered) + len(failedPredicateMap),
-		FeasibleNodes:  len(nodesFiltered),
-	}, err
 }
 
 //

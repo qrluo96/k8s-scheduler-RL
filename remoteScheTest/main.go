@@ -88,6 +88,7 @@ var rootCmd = &cobra.Command{
 func buildScheduler() scheduler.Scheduler {
 	// 1. Create a generic scheduler that mimics a kube-scheduler.
 	// preemption disabled
+	// sched := scheduler.NewScheduler( /* preemption enabled */ false)
 	sched := scheduler.NewRemoteScheduler( /* preemption enabled */ false)
 
 	// 2. Register extender(s)

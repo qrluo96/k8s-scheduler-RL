@@ -9,7 +9,14 @@ import gym_k8s.envs.config as config
 import gym_k8s.envs.server as server
 
 '''
+
 observation space:
+clock:
+
+pod infomation:
+    CPU     MEM     GPU
+
+cluster infomation:
     CPU     MEM     GPU    pod
 ┌───────┬───────┬───────┬───────┐
 │   x   │   x   │   x   │   x   │
@@ -28,6 +35,7 @@ x = [
 
 class K8sEnv(gym.Env):
 #   metadata = {'render.modes': ['human']}
+    
     
     # _client_thread = None
     _path = "./config.yaml"
@@ -49,6 +57,15 @@ class K8sEnv(gym.Env):
     def close(self):
         self._stop_sim()
         self._clear_threads()
+
+    def _take_action(self, action):
+        is_fit = ACTION_LOOKUP[action[0]]
+        node_name = self.node_names[action[1]]
+        node_num = len(self.node_names)
+        # TODO: complete the calculation of feasible_node_num
+        feasible_node_num = node_num
+        client.act(is_fit, node_name, node_num, feasible_node_num)
+
 
     def _start_sim(self):
         _start_server(self)
@@ -88,9 +105,14 @@ class K8sEnv(gym.Env):
             node_names.append(node_name)
             node_resources[node_name] = node_data['status']['allocatable']
         
+        self.node_names = node_names
         node_num = len(node_names)
 
-        discrete_spaces = []
+        max_cpu = 0
+        max_mem = 0
+        max_gpu = 0
+        # set the space of cluster information
+        cluster_info_spaces = []
         for name in node_names:
             cpu = node_resources[name]['cpu']
             mem = node_resources[name]['memory']
@@ -100,11 +122,42 @@ class K8sEnv(gym.Env):
             mem_int = int(mem[:-2])
             gpu = node_resources[name]['nvidia.com/gpu']
             pod = node_resources[name]['pods']
+
+            if cpu > max_cpu:
+                max_cpu = cpu
+            if mem_int > max_mem:
+                max_mem = mem_int
+            if gpu > max_gpu:
+                max_gpu = gpu
+
             resources_limit = [cpu, mem_int, gpu, pod]
 
-            discrete_space = spaces.MultiDiscrete(resources_limit)
-            discrete_spaces.append(discrete_space)
+            discrete_space  = spaces.Box(
+                low = [0, 0, 0, 0], 
+                high = resources_limit,
+                dtype = np.int32,
+            )
+            cluster_info_spaces.append(discrete_space)
+        
+        pod_resources_limit = [max_cpu, max_mem, max_gpu]
 
-        self.action_space = spaces.Discrete(node_num)
-        self.observation_space = spaces.Tuple(tuple(discrete_spaces))
+        # self.action_space = spaces.Discrete(node_num)
+        self.action_space = spaces.Tuple((
+            spaces.Discrete(2),
+            spaces.Discrete(node_num),
+        ))
+        self.observation_space = spaces.Tuple((
+            # clock
+            spaces.Box(low = 0, high = np.inf, dtype=np.int32),
+            # pod info
+            spaces.Box(low = [0, 0, 0], high = pod_resources_limit, dtype=np.int32),
+            # cluster info
+            spaces.Tuple(tuple(cluster_info_spaces)),
+        ))
+
+ACTION_LOOKUP = {
+    0 : client.FIT,
+    1 : client.NOTFIT,
+}
+
 

@@ -7,7 +7,11 @@ import time
 import gym_k8s.envs.RLServer as RLServer
 import gym_k8s.envs.threading_extender as threading_extender
 
+FIT = RLServer.FIT
+NOTFIT = RLServer.NOTFIT
+
 class ClientThread(threading.Thread):
+
     childThread = None
     _pod_data = None
     _cluster_data = None
@@ -54,3 +58,16 @@ class ClientThread(threading.Thread):
 
     def get_pod_data(self):
         return self._pod_data
+
+def set_schedule_result(node_name):
+    RLServer.AddScheduleResult(node_name)
+
+        
+
+
+def act(is_fit, node_name, node_num, feasible_node_num):
+    if is_fit == FIT:
+        
+        pass
+    else:
+        pass

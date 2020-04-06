@@ -11,6 +11,7 @@ import (
 
 	"simulator/pkg/clock"
 	"simulator/pkg/metrics"
+	"simulator/pkg/util"
 
 	v1 "k8s.io/api/core/v1"
 )
@@ -67,6 +68,36 @@ func SendFormattedMetrics(met *metrics.Metrics) {
 type podMetric struct {
 	Clock clock.Clock `json: "Clock"`
 	Pod   *v1.Pod     `json:",inline"`
+}
+
+// ListScheduleResult get the remote schedule result
+func ListScheduleResult(clock clock.Clock, pod *v1.Pod) util.ScheduleResult {
+	podMetric := podMetric{
+		Clock: clock,
+		Pod:   pod,
+	}
+
+	bytes, _ := json.Marshal(podMetric)
+	podData := string(bytes)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	var metric = pb.PodMetrics{PodMetrics: podData}
+
+	r, err := Client.ListScheduleResult(ctx, &metric)
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+	}
+	log.Printf("Greeting: %d", r.GetScheduleProcess())
+
+	result := util.ScheduleResult{}
+	result.SuggestHost = r.GetSuggestHost()
+	result.EvaluatedNodes = int(r.GetEvaluatedNodes())
+	result.FeasibleNodes = int(r.GetFeasibleNodes())
+	result.ScheduleProcess = int(r.GetScheduleProcess())
+
+	return result
 }
 
 // SendPodOnlyMetrics a test function for sending metrics to server

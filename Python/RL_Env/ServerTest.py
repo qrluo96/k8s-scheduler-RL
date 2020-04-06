@@ -5,6 +5,8 @@ import logging
 import threading
 import time
 
+import util
+
 import grpc
 
 import k8s_sim_pb2
@@ -41,6 +43,7 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         # print(formattedMetrics)
 
         clock = formattedMetrics['Clock']
+        clock = int(util.parse_clock(clock))
         print('Clock: ', end = '')
         print(clock)
         podMetrics = formattedMetrics['Pods']

@@ -7,15 +7,23 @@ import time
 
 import grpc
 
+# import util
+
 import k8s_sim_pb2
 import k8s_sim_pb2_grpc
 
 CLUSTERDATA = {}
 PODDATA = {}
+SCHEDULERESULT = {}
+CLOCK = 0
+FIT = 0
+NOTFIT = 1
 
 def ___init___():
     global CLUSTERDATA
     global PODDATA
+    global SCHEDULERESULT
+    global CLOCK
 
     CLUSTERDATA = {}
     PODDATA = {}
@@ -25,8 +33,39 @@ def GetClusterData():
 
 def GetPodData():
     return PODDATA
+
 def AddPodData(key, value):
     PODDATA[key] = value
+
+def AddScheduleResult(is_fit, suggest_host, evaluated_nodes_num, feasible_nodes_num):
+    global PODDATA
+    global SCHEDULERESULT
+    global CLOCK
+
+    clock = CLOCK
+
+    if clock not in SCHEDULERESULT:
+        SCHEDULERESULT[clock] = {}
+
+    pod = PODDATA[clock][-1]
+    pod_uid = pod['uid']
+
+    if is_fit == FIT:
+        result = {
+            'schedule_process': is_fit,
+            'suggest_host': suggest_host,
+            'evaluated_nodes': evaluated_nodes_num,
+            'feasible_nodes': feasible_nodes_num,
+        }
+    else:
+        result = {
+            'schedule_process': is_fit,
+            'suggest_host': '',
+            'evaluated_nodes': 0,
+            'feasible_nodes': 0,
+        }
+
+    SCHEDULERESULT[clock][pod_uid] = result
 
 class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
     def RecordFormattedMetrics(self, request, context):
@@ -49,6 +88,38 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         self.add_pod_data(pod_data)
 
         return k8s_sim_pb2.Result(result="1")
+
+    def ListScheduleResult(self, request, context):
+        global CLUSTERDATA
+
+        bytes = request.pod_metrics
+        pod_data = json.loads(bytes)
+
+    
+    def get_schedule_result(self, pod_data):
+        global SCHEDULERESULT
+
+        clock = str(pod_data['Clock'])
+
+        pod_uid = pod_data['Pod']['metadata']['uid']
+
+        while True:
+            if clock not in SCHEDULERESULT:
+                time.sleep(0.01)
+            else:
+                timestamp_results = SCHEDULERESULT[clock]
+                if pod_uid not in timestamp_results:
+                    time.sleep(0.01)
+                else:
+                    result = timestamp_results[pod_uid]
+                    schedule_result = k8s_sim_pb2.ScheduleResult(
+                        suggest_host = result['suggest_host'],
+                        evaluated_nodes = result['evaluated_nodes'],
+                        feasible_nodes = result['feasible_nodes'],
+                        schedule_process = result['schedule_process']
+                    )
+
+                    return schedule_result            
 
     # CLUSTERDATA[clock] {'node-0': {'allocatable': {'cpu': 4, 'mem': 8, 'gpu': 1, 'pod': 2}, 'request': {'cpu': 4, 'mem': 4, 'gpu': 1, 'pod': 1}, 'usage': {'cpu': 3, 'mem': 4, 'gpu': 0, 'pod': 1}}, 'node-1': {'allocatable': {'cpu': 8, 'mem': 16, 'gpu': 2, 'pod': 4}, 'request': {'cpu': 8, 'mem': 8, 'gpu': 2, 'pod': 2}, 'usage': {'cpu': 6, 'mem': 6, 'gpu': 1, 'pod': 2}}}
     def add_cluster_data(self, cluster_data):
@@ -128,9 +199,14 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
     # PODDATA[uid] = {'limits': {'cpu': 6, 'mem': 6, 'gpu': 1}, 'requests': {'cpu': 4, 'mem': 4, 'gpu': 1}, 'priority': 0}
     def add_pod_data(self, pod_data):
         global PODDATA
+        global CLOCK
 
         clock = str(pod_data['Clock'])
         # print(clock)
+        CLOCK = clock
+
+        if clock not in PODDATA:
+            PODDATA[clock] = []
 
         uid = pod_data['Pod']['metadata']['uid']
         spec = pod_data['Pod']['spec']
@@ -159,19 +235,24 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
 
         prio = spec['priority']
 
-        PODDATA[uid] = {}
-        PODDATA[uid]['limits'] = {}
-        PODDATA[uid]['limits']['cpu'] = limit_cpu
-        PODDATA[uid]['limits']['mem'] = limit_mem
-        PODDATA[uid]['limits']['gpu'] = limit_gpu
-        PODDATA[uid]['requests'] = {}
-        PODDATA[uid]['requests']['cpu'] = request_cpu
-        PODDATA[uid]['requests']['mem'] = request_mem
-        PODDATA[uid]['requests']['gpu'] = request_gpu
-        PODDATA[uid]['priority'] = prio
+        pod = {
+            'uid': uid,
+            'limit': {},
+            'request': {},
+            'priority': prio,
+        }
+        pod['limits'] = {
+            'cpu': limit_cpu,
+            'mem': limit_mem,
+            'gou': limit_gpu,
+        }
+        pod['requests'] = {
+            'cpu': request_cpu,
+            'mem': request_mem,
+            'gou': request_gpu,
+        }
 
-        print(uid, end = ' ')
-        print(PODDATA[uid])
+        PODDATA[clock].append(pod)
 
     def resource_config(self, resources):
         result = {}

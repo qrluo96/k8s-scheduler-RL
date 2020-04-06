@@ -29,6 +29,11 @@ class simRPCStub(object):
         request_serializer=k8s__sim__pb2.PodMetrics.SerializeToString,
         response_deserializer=k8s__sim__pb2.Result.FromString,
         )
+    self.ListScheduleResult = channel.unary_unary(
+        '/simRPC.simRPC/ListScheduleResult',
+        request_serializer=k8s__sim__pb2.PodMetrics.SerializeToString,
+        response_deserializer=k8s__sim__pb2.ScheduleResult.FromString,
+        )
 
 
 class simRPCServicer(object):
@@ -56,6 +61,13 @@ class simRPCServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def ListScheduleResult(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_simRPCServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -73,6 +85,11 @@ def add_simRPCServicer_to_server(servicer, server):
           servicer.RecordPodMetrics,
           request_deserializer=k8s__sim__pb2.PodMetrics.FromString,
           response_serializer=k8s__sim__pb2.Result.SerializeToString,
+      ),
+      'ListScheduleResult': grpc.unary_unary_rpc_method_handler(
+          servicer.ListScheduleResult,
+          request_deserializer=k8s__sim__pb2.PodMetrics.FromString,
+          response_serializer=k8s__sim__pb2.ScheduleResult.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
