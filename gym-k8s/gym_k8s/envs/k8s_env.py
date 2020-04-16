@@ -14,38 +14,49 @@ observation space:
 clock:
 
 pod infomation:
-    CPU     MEM     GPU
+                       CPU     MEM     GPU
+                    ┌───────┬───────┬───────┐
+limit_resource      │       │       │       │
+                    ├───────┼───────┼───────┤              
+request_resource    │       │       │       │
+                    └───────┴───────┴───────┘
 
 cluster infomation:
-    CPU     MEM     GPU    pod
-┌───────┬───────┬───────┬───────┐
-│   x   │   x   │   x   │   x   │
-├───────┼───────┼───────┼───────┤
- ...............................     num of nodes
-├───────┼───────┼───────┼───────┤
-└───────┴───────┴───────┴───────┘
+  alloc  request  usage 
+┌───────┬───────┬───────┐
+│   x   │   x   │   x   │
+├───────┼───────┼───────┤
+ .......................     num of nodes
+├───────┼───────┼───────┤
+└───────┴───────┴───────┘
 
 x = [
-    Allocatable resource
-    Total resource request
-    Total resource usage
-    ]
+    cpu
+    mem
+    gpu
+    pod
+]
 
 '''
 
 class K8sEnv(gym.Env):
 #   metadata = {'render.modes': ['human']}
-    
-    
     # _client_thread = None
-    _path = "./config.yaml"
+    _path = "/Users/qrluo/Documents/GitHub/k8s-scheduler-RL/gym-k8s/gym_k8s/envs/config.yaml"
 
     def __init__(self):
         self._threads = []
         self._set_space()
 
     def step(self, action):
-        ...
+        self._take_action(action)
+        self.status = self._get_status()
+
+        ob = self.status
+        is_over = self._is_over()
+        reward = self._get_reward()
+
+        return ob, reward, is_over, {}
 
     def reset(self):
         self._stop_sim()
@@ -58,18 +69,45 @@ class K8sEnv(gym.Env):
         self._stop_sim()
         self._clear_threads()
 
+    def _is_over(self):
+        scheduled_pod_num = self.client_thread.scheduled_pod_num()
+
+        if scheduled_pod_num < 1024:
+            return False
+        else:
+            return True
+
+    def _get_reward(self):
+        # TODO: complete reward calculate function
+        return 1
+
+    def _get_status(self):
+        cluster_info = self.client_thread.get_cluster_info()
+
+        clock = cluster_info['clock']
+        pod_status = cluster_info['pod_data']
+        cluster_data = cluster_info['cluster_data']
+
+        cluster_status = []
+        for node_name in self.node_names:
+            cluster_status.append(cluster_data[node_name])
+        cluster_status = np.array(cluster_status)
+
+        status = tuple(clock, pod_status, cluster_status)
+
+        return status
+
     def _take_action(self, action):
         is_fit = ACTION_LOOKUP[action[0]]
         node_name = self.node_names[action[1]]
         node_num = len(self.node_names)
         # TODO: complete the calculation of feasible_node_num
         feasible_node_num = node_num
-        client.act(is_fit, node_name, node_num, feasible_node_num)
-
+        self.client_thread.act(is_fit, node_name, node_num, feasible_node_num)
 
     def _start_sim(self):
         _start_server(self)
-        self._client_thread = _start_client(self)
+        self.client_thread = _start_client(self)
 
     def _stop_sim(self):
         for t in self._threads:
@@ -111,6 +149,7 @@ class K8sEnv(gym.Env):
         max_cpu = 0
         max_mem = 0
         max_gpu = 0
+        max_pod = 0
         # set the space of cluster information
         cluster_info_spaces = []
         for name in node_names:
@@ -123,22 +162,28 @@ class K8sEnv(gym.Env):
             gpu = node_resources[name]['nvidia.com/gpu']
             pod = node_resources[name]['pods']
 
-            if cpu > max_cpu:
-                max_cpu = cpu
-            if mem_int > max_mem:
-                max_mem = mem_int
-            if gpu > max_gpu:
-                max_gpu = gpu
+            max_cpu = max(max_cpu, cpu)
+            max_mem = max(max_mem, mem_int)
+            max_gpu = max(max_gpu, gpu)
+            max_pod = max(max_pod, pod)
 
-            resources_limit = [cpu, mem_int, gpu, pod]
+            # resources_limit = [cpu, mem_int, gpu, pod]
 
-            discrete_space  = spaces.Box(
-                low = [0, 0, 0, 0], 
-                high = resources_limit,
-                dtype = np.int32,
-            )
-            cluster_info_spaces.append(discrete_space)
+            # discrete_space  = spaces.Box(
+            #     low = [0, 0, 0, 0], 
+            #     high = resources_limit,
+            #     dtype = np.int32,
+            # )
+            # cluster_info_spaces.append(discrete_space)
         
+        resource_limit = [max_cpu, max_mem, max_gpu, max_pod]
+        node_limit = []
+        for i in range(3):
+            node_limit.append(resource_limit)
+        cluster_limit = []
+        for i in range(node_num):
+            cluster_limit.append(node_limit)
+
         pod_resources_limit = [max_cpu, max_mem, max_gpu]
 
         # self.action_space = spaces.Discrete(node_num)
@@ -148,11 +193,21 @@ class K8sEnv(gym.Env):
         ))
         self.observation_space = spaces.Tuple((
             # clock
-            spaces.Box(low = 0, high = np.inf, dtype=np.int32),
+            spaces.Discrete(np.inf),
             # pod info
-            spaces.Box(low = [0, 0, 0], high = pod_resources_limit, dtype=np.int32),
+            spaces.Box(
+                low = np.zeros((2, 3)),
+                high = np.array([pod_resources_limit, pod_resources_limit]),
+                # shape = (2, 3),
+                dtype=np.int32
+            ),
             # cluster info
-            spaces.Tuple(tuple(cluster_info_spaces)),
+            spaces.Box(
+                low = np.zeros((node_num, 3, 4)),
+                high = np.array(cluster_limit),
+                # shape = (node_num, 3, 4),
+                dtype = np.int32
+            ),
         ))
 
 ACTION_LOOKUP = {

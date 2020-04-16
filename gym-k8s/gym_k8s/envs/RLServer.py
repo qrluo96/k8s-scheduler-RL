@@ -4,30 +4,25 @@ import json
 import logging
 import threading
 import time
+import numpy as np
 
 import grpc
 
-# import util
-
-import k8s_sim_pb2
-import k8s_sim_pb2_grpc
+from . import k8s_util
+from . import k8s_sim_pb2
+from . import k8s_sim_pb2_grpc
 
 CLUSTERDATA = {}
 PODDATA = {}
 SCHEDULERESULT = {}
-CLOCK = 0
+INITCLOCK = 0
+RESULTCLOCK = 0
+INFOCLOCK = 0
 FIT = 0
 NOTFIT = 1
+FINISHEDPOD = 0
 
-def ___init___():
-    global CLUSTERDATA
-    global PODDATA
-    global SCHEDULERESULT
-    global CLOCK
-
-    CLUSTERDATA = {}
-    PODDATA = {}
-
+# should not be used
 def GetClusterData():
     return CLUSTERDATA
 
@@ -37,20 +32,61 @@ def GetPodData():
 def AddPodData(key, value):
     PODDATA[key] = value
 
-def AddScheduleResult(is_fit, suggest_host, evaluated_nodes_num, feasible_nodes_num):
+# get_cluster_data return the newest status data after send backschedule result
+def get_cluster_data(self):
+    while True:
+        if INFOCLOCK != RESULTCLOCK:
+            break
+        else:
+            time.sleep(0.001)
+
+    clock = INFOCLOCK
+    # pod_data = PODDATA[clock]
+    if clock in PODDATA and len(PODDATA[clock]) > 0:
+        pod_data = PODDATA[clock][-1]
+    else:
+        pod_data = {
+            'uid': '',
+            'limit': {
+                'cpu': 0,
+                'mem': 0,
+                'gpu': 0,
+            },
+            'request': {
+                'cpu': 0,
+                'mem': 0,
+                'gpu': 0,
+            },
+            'priority': 0,
+        }       
+    cluster_data = CLUSTERDATA[clock]
+
+    status = {
+        'clock': clock,
+        'pod_data': pod_data,
+        'cluster_data': cluster_data,
+    }
+    
+    return status
+
+def add_schedule_result(is_fit, suggest_host, evaluated_nodes_num, feasible_nodes_num):
     global PODDATA
     global SCHEDULERESULT
-    global CLOCK
+    global INFOCLOCK
+    global RESULTCLOCK
+    global FINISHEDPOD
 
-    clock = CLOCK
+    clock = INFOCLOCK
 
     if clock not in SCHEDULERESULT:
         SCHEDULERESULT[clock] = {}
+        RESULTCLOCK = clock
 
     pod = PODDATA[clock][-1]
     pod_uid = pod['uid']
 
     if is_fit == FIT:
+        FINISHEDPOD += 1
         result = {
             'schedule_process': is_fit,
             'suggest_host': suggest_host,
@@ -68,9 +104,24 @@ def AddScheduleResult(is_fit, suggest_host, evaluated_nodes_num, feasible_nodes_
     SCHEDULERESULT[clock][pod_uid] = result
 
 class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
-    def RecordFormattedMetrics(self, request, context):
+    def ___init___(self):
         global CLUSTERDATA
+        global FINISHEDPOD
+        global PODDATA
+        global SCHEDULERESULT
+        global INITCLOCK
+        global RESULTCLOCK
+        global INFOCLOCK
 
+        CLUSTERDATA = {}
+        FINISHEDPOD = 0
+        PODDATA = {}
+        SCHEDULERESULT = {}
+        INITCLOCK = 0
+        RESULTCLOCK = 0
+        INFOCLOCK = 0
+
+    def RecordFormattedMetrics(self, request, context):
         bytes = request.formatted_metrics
         cluster_data = json.loads(bytes)
         # print("Formatted metrics: ", end = '')
@@ -90,26 +141,29 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         return k8s_sim_pb2.Result(result="1")
 
     def ListScheduleResult(self, request, context):
-        global CLUSTERDATA
-
         bytes = request.pod_metrics
         pod_data = json.loads(bytes)
 
+        schedule_result = self._get_schedule_result(pod_data)
+
+        return schedule_result
     
-    def get_schedule_result(self, pod_data):
+    # _get_schedule_result return the protobuf formatted data
+    def _get_schedule_result(self, pod_data):
         global SCHEDULERESULT
 
-        clock = str(pod_data['Clock'])
+        clock_str = str(pod_data['Clock'])
+        clock = self._format_clock(clock_str)
 
         pod_uid = pod_data['Pod']['metadata']['uid']
 
         while True:
             if clock not in SCHEDULERESULT:
-                time.sleep(0.01)
+                time.sleep(0.001)
             else:
                 timestamp_results = SCHEDULERESULT[clock]
                 if pod_uid not in timestamp_results:
-                    time.sleep(0.01)
+                    time.sleep(0.001)
                 else:
                     result = timestamp_results[pod_uid]
                     schedule_result = k8s_sim_pb2.ScheduleResult(
@@ -124,8 +178,11 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
     # CLUSTERDATA[clock] {'node-0': {'allocatable': {'cpu': 4, 'mem': 8, 'gpu': 1, 'pod': 2}, 'request': {'cpu': 4, 'mem': 4, 'gpu': 1, 'pod': 1}, 'usage': {'cpu': 3, 'mem': 4, 'gpu': 0, 'pod': 1}}, 'node-1': {'allocatable': {'cpu': 8, 'mem': 16, 'gpu': 2, 'pod': 4}, 'request': {'cpu': 8, 'mem': 8, 'gpu': 2, 'pod': 2}, 'usage': {'cpu': 6, 'mem': 6, 'gpu': 1, 'pod': 2}}}
     def add_cluster_data(self, cluster_data):
         global CLUSTERDATA
+        global INFOCLOCK
 
-        clock = str(cluster_data['Clock'])
+        clock_str = str(cluster_data['Clock'])
+        clock = self._format_clock(clock_str)
+        INFOCLOCK = clock
         CLUSTERDATA[clock] = {}
 
         nodes = cluster_data['Nodes']
@@ -151,7 +208,19 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
 
         print(clock, end = ' ')
         print(CLUSTERDATA[clock])
+    
+    def _format_clock(self, clock):
+        global INITCLOCK
 
+        clock = k8s_util.parse_clock(clock)
+        if INITCLOCK == 0:
+            INITCLOCK = clock
+
+        relative_clock = clock - INITCLOCK
+
+        return relative_clock
+
+    # cluster_resource_config format the resource information 
     def cluster_resource_config(self, resources, pod_num):
         result = {}
 
@@ -199,11 +268,9 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
     # PODDATA[uid] = {'limits': {'cpu': 6, 'mem': 6, 'gpu': 1}, 'requests': {'cpu': 4, 'mem': 4, 'gpu': 1}, 'priority': 0}
     def add_pod_data(self, pod_data):
         global PODDATA
-        global CLOCK
 
-        clock = str(pod_data['Clock'])
-        # print(clock)
-        CLOCK = clock
+        clock_str = str(pod_data['Clock'])
+        clock = self._format_clock(clock_str)
 
         if clock not in PODDATA:
             PODDATA[clock] = []
