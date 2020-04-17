@@ -21,8 +21,11 @@ class ClientThread(threading.Thread):
         self.childThread = None
 
     def run(self):
+        print(os.getcwd())
+
         self.childThread = subprocess.Popen(
-            'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go', 
+            'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go --config /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/gym-k8s/gym_k8s/config/config', 
+            # 'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go', 
             shell=True, 
             start_new_session=True, 
             stdout=subprocess.DEVNULL, 
@@ -99,3 +102,11 @@ class ClientThread(threading.Thread):
 
     def scheduled_pod_num(self):
         return self._scheduled_pod_num
+
+# if __name__ == '__main__':
+#     client_thread = ClientThread()
+#     client_thread.start()
+
+#     time.sleep(8)
+
+#     client_thread.stop()

@@ -4,6 +4,8 @@ import threading
 from gym import error, spaces, utils
 from gym.utils import seeding
 
+import time
+
 import gym_k8s.envs.client as client
 import gym_k8s.envs.config as config
 import gym_k8s.envs.server as server
@@ -59,8 +61,15 @@ class K8sEnv(gym.Env):
         return ob, reward, is_over, {}
 
     def reset(self):
-        self._stop_sim()
+        self.close()
         self._start_sim()
+
+        print("Simulator starting...")
+        time.sleep(3)
+
+        self.status = self._get_status()
+
+        return self.status
 
 #   def render(self, mode='human'):
 #     ...
@@ -70,7 +79,7 @@ class K8sEnv(gym.Env):
         self._clear_threads()
 
     def _is_over(self):
-        scheduled_pod_num = self.client_thread.scheduled_pod_num()
+        scheduled_pod_num = self._client_thread.scheduled_pod_num()
 
         if scheduled_pod_num < 1024:
             return False
@@ -82,7 +91,7 @@ class K8sEnv(gym.Env):
         return 1
 
     def _get_status(self):
-        cluster_info = self.client_thread.get_cluster_info()
+        cluster_info = self._client_thread.get_cluster_info()
 
         clock = cluster_info['clock']
         pod_status = cluster_info['pod_data']
@@ -103,27 +112,25 @@ class K8sEnv(gym.Env):
         node_num = len(self.node_names)
         # TODO: complete the calculation of feasible_node_num
         feasible_node_num = node_num
-        self.client_thread.act(is_fit, node_name, node_num, feasible_node_num)
+        self._client_thread.act(is_fit, node_name, node_num, feasible_node_num)
 
     def _start_sim(self):
-        _start_server(self)
-        self.client_thread = _start_client(self)
+        self._start_server()
+        self._start_client()
 
     def _stop_sim(self):
         for t in self._threads:
             t.stop()
 
     def _start_server(self):
-        serve_thread = server.ServeThread()
-        serve_thread.start()
-        self._threads.append(serve_thread)
+        self._serve_thread = server.ServeThread()
+        self._serve_thread.start()
+        self._threads.append(self._serve_thread)
 
     def _start_client(self):
-        client_thread = client.ClientThread()
-        client_thread.start()
-        self._threads.append(client_thread)
-
-        return client_thread
+        self._client_thread = client.ClientThread()
+        self._client_thread.start()
+        self._threads.append(self._client_thread)
     
     def _clear_threads(self):
         for t in self._threads:

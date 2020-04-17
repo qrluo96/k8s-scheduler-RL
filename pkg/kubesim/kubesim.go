@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Modifications copyright 2020 Qirui Luo.
+
 package kubesim
 
 import (
@@ -221,8 +223,8 @@ func (k *KubeSim) List() ([]*v1.Node, error) {
 
 // readConfig reads and parses a config from the path (excluding file extension).
 func readConfig(path string) (*config.Config, error) {
-	viper.SetConfigName(path)
-	viper.AddConfigPath(".")
+	viper.SetConfigName("config")
+	viper.AddConfigPath(path)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, err

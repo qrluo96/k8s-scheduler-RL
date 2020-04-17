@@ -33,7 +33,7 @@ def AddPodData(key, value):
     PODDATA[key] = value
 
 # get_cluster_data return the newest status data after send backschedule result
-def get_cluster_data(self):
+def get_cluster_data():
     while True:
         if INFOCLOCK != RESULTCLOCK:
             break
@@ -343,5 +343,6 @@ def serve():
     k8s_sim_pb2_grpc.add_simRPCServicer_to_server(
         simRPCServicer(), server)
     server.add_insecure_port('[::]:50051')
+    print("Server starting...")
     server.start()
     server.wait_for_termination()
