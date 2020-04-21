@@ -2,6 +2,7 @@
 import grpc
 
 from . import k8s_sim_pb2 as k8s__sim__pb2
+# import k8s_sim_pb2 as k8s__sim__pb2
 
 
 class simRPCStub(object):

@@ -78,6 +78,35 @@ class K8sEnv(gym.Env):
         self._stop_sim()
         self._clear_threads()
 
+    def _filter(self):
+        self._filtered = []
+
+        pod_status = self.status[1]
+        cluster_status = self.status[2]
+
+        pod_request = pod_status['request']
+
+        for node_name in self.node_names:
+            status = cluster_status[node_name]
+            allocatable = status['allocatable']
+            request = status['request']
+
+            if allocatable['pod'] - request['pod'] < 1:
+                continue
+            if allocatable['cpu'] - request['cpu'] < pod_request['cpu']:
+                continue
+            if allocatable['mem'] - request['mem'] < pod_request['mem']:
+                continue
+            if allocatable['gpu'] - request['gpu'] < pod_request['gpu']:
+                continue
+
+            self._filtered.append(node_name)
+
+    def _prioritize(self):
+        pass
+
+
+
     def _is_over(self):
         scheduled_pod_num = self._client_thread.scheduled_pod_num()
 
@@ -102,7 +131,7 @@ class K8sEnv(gym.Env):
             cluster_status.append(cluster_data[node_name])
         cluster_status = np.array(cluster_status)
 
-        status = tuple(clock, pod_status, cluster_status)
+        status = clock, pod_status, cluster_status
 
         return status
 
@@ -115,7 +144,10 @@ class K8sEnv(gym.Env):
         self._client_thread.act(is_fit, node_name, node_num, feasible_node_num)
 
     def _start_sim(self):
+        print("Server starting")
         self._start_server()
+        time.sleep(1)
+        print("Client starting")
         self._start_client()
 
     def _stop_sim(self):
@@ -151,7 +183,7 @@ class K8sEnv(gym.Env):
             node_resources[node_name] = node_data['status']['allocatable']
         
         self.node_names = node_names
-        node_num = len(node_names)
+        node_num = len(self.node_names)
 
         max_cpu = 0
         max_mem = 0

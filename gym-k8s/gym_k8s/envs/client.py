@@ -24,7 +24,7 @@ class ClientThread(threading.Thread):
         print(os.getcwd())
 
         self.childThread = subprocess.Popen(
-            'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go --config /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/gym-k8s/gym_k8s/config/config', 
+            'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go --config /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/gym-k8s/gym_k8s/config/', 
             # 'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go', 
             shell=True, 
             start_new_session=True, 
@@ -67,6 +67,7 @@ class ClientThread(threading.Thread):
         cluster_info = RLServer.get_cluster_data()
 
         pod_data = cluster_info['pod_data']
+        print(pod_data)
         cluster_data = cluster_info['cluster_data']
 
         pod_limit = pod_data['limit']

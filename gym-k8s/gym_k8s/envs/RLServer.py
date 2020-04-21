@@ -11,16 +11,20 @@ import grpc
 from . import k8s_util
 from . import k8s_sim_pb2
 from . import k8s_sim_pb2_grpc
+# import k8s_util
+# import k8s_sim_pb2
+# import k8s_sim_pb2_grpc
 
 CLUSTERDATA = {}
 PODDATA = {}
 SCHEDULERESULT = {}
-INITCLOCK = 0
-RESULTCLOCK = 0
-INFOCLOCK = 0
-FIT = 0
-NOTFIT = 1
+INITCLOCK = -1
+RESULTCLOCK = -1
+INFOCLOCK = -1
+FIT = False
+NOTFIT = True
 FINISHEDPOD = 0
+NEWPOD = False
 
 # should not be used
 def GetClusterData():
@@ -34,31 +38,15 @@ def AddPodData(key, value):
 
 # get_cluster_data return the newest status data after send backschedule result
 def get_cluster_data():
-    while True:
-        if INFOCLOCK != RESULTCLOCK:
-            break
-        else:
-            time.sleep(0.001)
+    count = 0
+
+    while NEWPOD != True:
+        time.sleep(0.001)
 
     clock = INFOCLOCK
-    # pod_data = PODDATA[clock]
-    if clock in PODDATA and len(PODDATA[clock]) > 0:
-        pod_data = PODDATA[clock][-1]
-    else:
-        pod_data = {
-            'uid': '',
-            'limit': {
-                'cpu': 0,
-                'mem': 0,
-                'gpu': 0,
-            },
-            'request': {
-                'cpu': 0,
-                'mem': 0,
-                'gpu': 0,
-            },
-            'priority': 0,
-        }       
+
+    pod_data = PODDATA[clock][-1]
+
     cluster_data = CLUSTERDATA[clock]
 
     status = {
@@ -75,6 +63,7 @@ def add_schedule_result(is_fit, suggest_host, evaluated_nodes_num, feasible_node
     global INFOCLOCK
     global RESULTCLOCK
     global FINISHEDPOD
+    global NEWPOD
 
     clock = INFOCLOCK
 
@@ -102,26 +91,11 @@ def add_schedule_result(is_fit, suggest_host, evaluated_nodes_num, feasible_node
         }
 
     SCHEDULERESULT[clock][pod_uid] = result
+    NEWPOD = False
 
 class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
-    def ___init___(self):
-        global CLUSTERDATA
-        global FINISHEDPOD
-        global PODDATA
-        global SCHEDULERESULT
-        global INITCLOCK
-        global RESULTCLOCK
-        global INFOCLOCK
-
-        CLUSTERDATA = {}
-        FINISHEDPOD = 0
-        PODDATA = {}
-        SCHEDULERESULT = {}
-        INITCLOCK = 0
-        RESULTCLOCK = 0
-        INFOCLOCK = 0
-
     def RecordFormattedMetrics(self, request, context):
+        print("new data")
         bytes = request.formatted_metrics
         cluster_data = json.loads(bytes)
         # print("Formatted metrics: ", end = '')
@@ -132,11 +106,13 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
 
     def RecordPodMetrics(self, request, context):
         global PODDATA
+        global NEWPOD
 
         bytes = request.pod_metrics
         pod_data = json.loads(bytes)
         # print(pod_data)
         self.add_pod_data(pod_data)
+        NEWPOD = True
 
         return k8s_sim_pb2.Result(result="1")
 
@@ -177,10 +153,13 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
 
     # CLUSTERDATA[clock] {'node-0': {'allocatable': {'cpu': 4, 'mem': 8, 'gpu': 1, 'pod': 2}, 'request': {'cpu': 4, 'mem': 4, 'gpu': 1, 'pod': 1}, 'usage': {'cpu': 3, 'mem': 4, 'gpu': 0, 'pod': 1}}, 'node-1': {'allocatable': {'cpu': 8, 'mem': 16, 'gpu': 2, 'pod': 4}, 'request': {'cpu': 8, 'mem': 8, 'gpu': 2, 'pod': 2}, 'usage': {'cpu': 6, 'mem': 6, 'gpu': 1, 'pod': 2}}}
     def add_cluster_data(self, cluster_data):
+        print("new cluster data")
+
         global CLUSTERDATA
         global INFOCLOCK
 
         clock_str = str(cluster_data['Clock'])
+        print(clock_str)
         clock = self._format_clock(clock_str)
         INFOCLOCK = clock
         CLUSTERDATA[clock] = {}
@@ -213,7 +192,7 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         global INITCLOCK
 
         clock = k8s_util.parse_clock(clock)
-        if INITCLOCK == 0:
+        if INITCLOCK == -1:
             INITCLOCK = clock
 
         relative_clock = clock - INITCLOCK
@@ -308,15 +287,15 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
             'request': {},
             'priority': prio,
         }
-        pod['limits'] = {
+        pod['limit'] = {
             'cpu': limit_cpu,
             'mem': limit_mem,
-            'gou': limit_gpu,
+            'gpu': limit_gpu,
         }
-        pod['requests'] = {
+        pod['request'] = {
             'cpu': request_cpu,
             'mem': request_mem,
-            'gou': request_gpu,
+            'gpu': request_gpu,
         }
 
         PODDATA[clock].append(pod)
@@ -329,7 +308,7 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
         mem_suffix = mem[len(mem) - 2:]
         if mem_suffix != 'Gi':
             raise Exception('The unit should be \'Gi\'')
-        mem_int = int(mem[:-2])
+        mem_int = int(mem[: -2])
         gpu = int(resources['nvidia.com/gpu'])
 
         result['cpu'] = cpu
@@ -342,7 +321,10 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     k8s_sim_pb2_grpc.add_simRPCServicer_to_server(
         simRPCServicer(), server)
-    server.add_insecure_port('[::]:50051')
-    print("Server starting...")
+    server.add_insecure_port('[::]:50052')
     server.start()
     server.wait_for_termination()
+
+if __name__ == '__main__':
+    logging.basicConfig()
+    serve()

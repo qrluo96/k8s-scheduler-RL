@@ -57,7 +57,7 @@ var rootCmd = &cobra.Command{
 		ctx := newInterruptableContext()
 
 		// 0. Establish the connection
-		address := "localhost:50051"
+		address := "localhost:50052"
 
 		conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 		if err != nil {
