@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Modifications copyright 2020 Qirui Luo. 
+// Modifications copyright 2020 Qirui Luo.
 
 package main
 
@@ -70,7 +70,7 @@ func (s *mySubmitter) Submit(
 	}
 
 	// submit pod num
-	if s.podIdx > 1024 {
+	if s.podIdx > 2048 {
 		events = append(events, &submitter.TerminateSubmitterEvent{})
 	}
 

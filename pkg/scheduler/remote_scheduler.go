@@ -112,6 +112,8 @@ func (sched *RemoteScheduler) Schedule(
 		if err != nil {
 			log.L.Tracef("Pod %v does not fit in any node", pod)
 			log.L.Debugf("Pod %s does not fit in any node", podKey)
+
+			return []Event{}, nil
 		}
 
 		// If found a node that can accommodate the pod, ...

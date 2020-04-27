@@ -11,5 +11,8 @@ class ServeThread(threading.Thread):
         RLServer.serve()
 
     def stop(self):
-        threading_extender.stop_thread(self)
+        RLServer.restart()
         print("Kill server")
+
+    def restart(self):
+        RLServer.restart()
