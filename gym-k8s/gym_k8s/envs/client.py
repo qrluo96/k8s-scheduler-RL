@@ -55,7 +55,7 @@ class ClientThread(threading.Thread):
         self._clock_list = RLServer.TIMELIST
         self._info_clock = 0
 
-        self.childThread.wait()
+        # self.childThread.wait()
         print("Tester code: ", end = '')
         print(self.childThread.poll())
     
