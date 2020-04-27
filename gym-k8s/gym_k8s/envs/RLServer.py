@@ -8,12 +8,9 @@ import numpy as np
 
 import grpc
 
-from . import k8s_util
-from . import k8s_sim_pb2
-from . import k8s_sim_pb2_grpc
-# import k8s_util
-# import k8s_sim_pb2
-# import k8s_sim_pb2_grpc
+import gym_k8s.envs.k8s_util as k8s_util
+import gym_k8s.envs.k8s_sim_pb2 as k8s_sim_pb2
+import gym_k8s.envs.k8s_sim_pb2_grpc as k8s_sim_pb2_grpc
 
 CLUSTERDATA = {}
 PODDATA = {}
@@ -21,10 +18,11 @@ SCHEDULERESULT = {}
 INITCLOCK = -1
 RESULTCLOCK = -1
 INFOCLOCK = -1
-FIT = False
-NOTFIT = True
+FIT = 0
+NOTFIT = 1
 FINISHEDPOD = 0
 NEWPOD = False
+TIMELIST = []
 
 # should not be used
 def GetClusterData():
@@ -37,13 +35,11 @@ def AddPodData(key, value):
     PODDATA[key] = value
 
 # get_cluster_data return the newest status data after send backschedule result
-def get_cluster_data():
+def get_cluster_data(clock = INFOCLOCK):
     count = 0
 
     while NEWPOD != True:
         time.sleep(0.001)
-
-    clock = INFOCLOCK
 
     pod_data = PODDATA[clock][-1]
 
@@ -157,10 +153,12 @@ class simRPCServicer(k8s_sim_pb2_grpc.simRPCServicer):
 
         global CLUSTERDATA
         global INFOCLOCK
+        global TIMELIST
 
         clock_str = str(cluster_data['Clock'])
         print(clock_str)
         clock = self._format_clock(clock_str)
+        TIMELIST.append(clock)
         INFOCLOCK = clock
         CLUSTERDATA[clock] = {}
 

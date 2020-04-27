@@ -41,6 +41,8 @@ x = [
 
 '''
 
+TIME_WINDOW = 360
+
 class K8sEnv(gym.Env):
 #   metadata = {'render.modes': ['human']}
     # _client_thread = None
@@ -50,13 +52,29 @@ class K8sEnv(gym.Env):
         self._threads = []
         self._set_space()
 
+        # variables
+        self.tick = 0
+        self._feasible_node = []
+        self.status = {}
+        self.node_names = []
+        self.clock = 0
+
     def step(self, action):
+        # if fit, do feadible check
+        if action[0] == client.FIT:
+            is_feasible = self._feasible_check(action)
+
+            if is_feasible == False:
+                is_over = True
+                return [], -1000, is_over, {}
+
         self._take_action(action)
-        self.status = self._get_status()
+        # wait for next status
+        self.status = self._update_status()
 
         ob = self.status
         is_over = self._is_over()
-        reward = self._get_reward()
+        reward = self._get_reward(action)
 
         return ob, reward, is_over, {}
 
@@ -67,22 +85,81 @@ class K8sEnv(gym.Env):
         print("Simulator starting...")
         time.sleep(3)
 
-        self.status = self._get_status()
+        self.status = self._update_status()
 
         return self.status
-
-#   def render(self, mode='human'):
-#     ...
 
     def close(self):
         self._stop_sim()
         self._clear_threads()
 
-    def _filter(self):
-        self._filtered = []
+    # format cluster info into observation space type
+    def _ob_format(self):
+        observation = []
 
-        pod_status = self.status[1]
-        cluster_status = self.status[2]
+        cluster_data = self.status
+
+        clock = cluster_data['clock']
+        pod_data = cluster_data['pod_data']
+        cluster_data = cluster_data['cluster_data']
+
+        # format pod status
+        pod_limit = pod_data['limit']
+        pod_request = pod_data['request']
+        pod_status = np.array([
+            [pod_limit['cpu'], pod_limit['mem'], pod_limit['gpu']],
+            [pod_request['cpu'], pod_request['mem'], pod_request['gpu']]
+        ])
+
+        # format cluster status
+        cluster_status = []
+        for node_name in cluster_data.keys():
+            node_data = cluster_data[node_name]
+            keyword = ['cpu', 'mem', 'gpu', 'pod']
+            node_alloc = self._dict_format(keyword, node_data['allocatable'])
+            node_request = self._dict_format(keyword, node_data['request'])
+            node_usage = self._dict_format(keyword, node_data['usage'])
+            node_status = {
+                'allocatable': node_alloc,
+                'request': node_request,
+                'usage': node_usage,
+            }
+            cluster_status.append(node_status)
+
+        observation = [
+            clock,
+            pod_status,
+            cluster_data,
+        ]
+
+        return observation
+
+    def _dict_format(self, key_order, dict):
+        result = []
+
+        for key in key_order:
+            result.append(dict[key])
+
+        return result
+
+    def _feasible_check(self, action):
+        self._feasible_node = self._filter()
+
+        node_name = self.node_names[action[1]]
+
+        if node_name not in self._feasible_node:
+            return False
+        else:
+            return True
+
+#   def render(self, mode='human'):
+#     ...
+
+    def _filter(self):
+        feasible_node = []
+
+        pod_status = self.status['pod_data']
+        cluster_status = self.status['cluster_data']
 
         pod_request = pod_status['request']
 
@@ -100,12 +177,12 @@ class K8sEnv(gym.Env):
             if allocatable['gpu'] - request['gpu'] < pod_request['gpu']:
                 continue
 
-            self._filtered.append(node_name)
+            feasible_node.append(node_name)
 
-    def _prioritize(self):
-        pass
+        return feasible_node
 
-
+    # def _node_score(self):
+    #     pass
 
     def _is_over(self):
         scheduled_pod_num = self._client_thread.scheduled_pod_num()
@@ -115,11 +192,88 @@ class K8sEnv(gym.Env):
         else:
             return True
 
-    def _get_reward(self):
-        # TODO: complete reward calculate function
-        return 1
+    def _get_reward(self, action):
+        reward = 0
 
-    def _get_status(self):
+        # if current pod successfully scheduled
+        if action[0] == client.FIT:
+            reward += 0.1
+
+        if self.clock == 0:
+            return reward
+
+        resource_type = [
+            'cpu', 'mem', 'gpu', 'pod',
+        ]
+
+        total_resource = client.get_resource_status(self.clock)
+        avg_request_prcnt = self._get_resource_avg(total_resource, 'request')
+        # avg_usage_prcnt = self._get_resource_avg(total_resource, 'usage')
+        avg_reward = self._resource_scale(avg_request_prcnt)
+        
+        # TODO: accummulated utilization rate for a curtain time window
+        delta_time = TIME_WINDOW * self.tick
+        prev_clock = self.clock - delta_time
+        if prev_clock < 0:
+            prev_clock = 0
+        prev_resource = client.get_resource_status(prev_clock)
+        dif_resource = self._dif_resource(total_resource, prev_clock)
+        time_window_request_prcnt = self._get_resource_avg(dif_resource, 'request')
+        time_window_reward = self._resource_scale(time_window_request_prcnt)
+
+        return reward
+
+    def _resource_scale(self, avg_resource_prcnt):
+        score = 0
+        score += avg_resource_prcnt['cpu'] * 0.8
+        score += avg_resource_prcnt['mem'] * 1
+        score += avg_resource_prcnt['gpu'] * 1.2
+
+        return score
+
+    # dif_resource = resource_1 - resource_2
+    def _dif_resource(self, resource_1, resource_2):
+        resource_type = [
+            'cpu', 'mem', 'gpu', 'pod',
+        ]
+        resource_kind = [
+            'allocatable', 'request', 'usage',
+        ]
+
+        dif_resource = {}
+        for node_name in resource_1.keys():
+            for kind in resource_kind:
+                for type in resource_type:
+                    dif_resource[node_name][kind][type] = resource_1[node_name][kind][type] - resource_2[node_name][kind][type]
+
+        return dif_resource
+
+    def _get_resource_avg(self, total_resource, consume_kind):
+        if consume_kind != 'allocatable' and consume_kind != 'usage':
+            raise Exception('Resource type wrong!')
+
+        resource_type = [
+            'cpu', 'mem', 'gpu', 'pod',
+        ]
+
+        alloc_resource = {}
+        consume_resource = {}
+        avg_resource = {}
+        for type in resource_type:
+            alloc_resource[type] = 0
+            consume_resource[type] = 0
+            avg_resource[type] = 0
+
+        for node_name in total_resource.keys():
+            for type in resource_type:
+                alloc_resource[type] += total_resource[node_name]['allocatable'][type]
+                consume_resource[type] += total_resource[node_name][consume_kind][type]
+
+        for type in resource_type:
+            avg_resource[type] = consume_resource[type]/alloc_resource[type]
+
+
+    def _update_status(self):
         cluster_info = self._client_thread.get_cluster_info()
 
         clock = cluster_info['clock']
@@ -133,14 +287,15 @@ class K8sEnv(gym.Env):
 
         status = clock, pod_status, cluster_status
 
+        self._clock = clock
+
         return status
 
     def _take_action(self, action):
         is_fit = ACTION_LOOKUP[action[0]]
         node_name = self.node_names[action[1]]
         node_num = len(self.node_names)
-        # TODO: complete the calculation of feasible_node_num
-        feasible_node_num = node_num
+        feasible_node_num = len(self._feasible_node)
         self._client_thread.act(is_fit, node_name, node_num, feasible_node_num)
 
     def _start_sim(self):
@@ -173,7 +328,8 @@ class K8sEnv(gym.Env):
     def _set_space(self):
         yaml_data = config.read_config(self._path)
 
-        cluster_data = yaml_data["cluster"]
+        self.tick = yaml_data['tick']
+        cluster_data = yaml_data['cluster']
         
         node_names = []
         node_resources = {}

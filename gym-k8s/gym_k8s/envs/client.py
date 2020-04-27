@@ -19,6 +19,12 @@ class ClientThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self, daemon=True)
         self.childThread = None
+        self._sum_resource = {
+            'allocatable': {},
+            'request': {},
+            'usage': {},
+        }
+        self._resource_log = {}
 
     def run(self):
         print(os.getcwd())
@@ -41,6 +47,8 @@ class ClientThread(threading.Thread):
         self._pod_data = RLServer.PODDATA
         self._cluster_data = RLServer.CLUSTERDATA
         self._scheduled_pod_num = RLServer.FINISHEDPOD
+        self._clock_list = RLServer.TIMELIST
+        self._info_clock = RLServer.INFOCLOCK
 
         self.childThread.wait()
         print("Tester code: ", end = '')
@@ -55,51 +63,85 @@ class ClientThread(threading.Thread):
         print("Tester code: ", end = '')
         print(self.childThread.poll())
 
-    def get_pod_data(self):
-        return self._pod_data
+    # def get_pod_data(self):
+    #     return self._pod_data
+
+    def get_resource_status(self, clock):
+        return self._resource_log[clock]
+
+    # update the latest resource data
+    def _update_usage(self):
+        prev_clock = self._info_clock
+        self._info_clock = RLServer.INFOCLOCK
+
+        # if the simulator is just started
+        # use add_usage function to initial sum_resource var
+        if self._info_clock == 0:
+            self._add_usage(prev_clock)
+        # if function is called at the same time stamp
+        elif prev_clock == self._info_clock:
+            pass
+        else:
+            i_start = self._clock_list.index(prev_clock)
+            for clock in self._clock_list[i_start:-1]:
+                self._add_usage(clock)
+
+        self._resource_log[self._info_clock] = self._sum_resource.copy()
+
+    def _add_usage(self, clock):
+        cluster_data_raw = RLServer.get_cluster_data(clock)
+
+        cluster_data = cluster_data_raw['cluster_data']
+
+        resource_type = [
+            'cpu', 'mem', 'gpu', 'pod',
+        ]
+        resource_kind = [
+            'allocatable', 'request', 'usage',
+        ]
+        for node_name in cluster_data.keys():
+            if node_name not in self._sum_resource['allocatable']:
+                for kind in resource_kind:
+                    for type in resource_type:
+                        self._sum_resource[node_name][kind][type] = cluster_data[node_name][kind][type]
+            else:
+                for kind in resource_kind:
+                    for type in resource_type:
+                        self._sum_resource[node_name][kind][type] += cluster_data[node_name][kind][type]
 
     # act send back the schedule result to simulator
     def act(self, is_fit, suggest_host, evaluated_nodes_num, feasible_nodes_num):
+        # update cluster info
+        self._update_cluster_info(suggest_host)
+
         RLServer.add_schedule_result(is_fit, suggest_host, evaluated_nodes_num, feasible_nodes_num)
 
-    # get status returns the newest cluster info
+    # update cluster info after schedule
+    def _update_cluster_info(self, suggest_host):
+        pod_data = self.cluster_info['pod_data']
+        cluster_data = self.cluster_info['cluster_data']
+
+        keywords = ['cpu', 'mem', 'gpu']
+
+        for key in keywords:
+            cluster_data[suggest_host]['request'][key] += pod_data['request'][key]
+        
+        cluster_data[suggest_host]['request']['pod'] += 1
+
+    # returns the newest cluster info
     def get_cluster_info(self):
         cluster_info = RLServer.get_cluster_data()
 
-        pod_data = cluster_info['pod_data']
-        print(pod_data)
-        cluster_data = cluster_info['cluster_data']
-
-        pod_limit = pod_data['limit']
-        pod_request = pod_data['request']
-        pod_status = np.array([
-            [pod_limit['cpu'], pod_limit['mem'], pod_limit['gpu']],
-            [pod_request['cpu'], pod_request['mem'], pod_request['gpu']]
-        ])
-        cluster_info['pod_data'] = pod_status
-
-        for node_name in cluster_data.keys():
-            node_data = cluster_data[node_name]
-            keyword = ['cpu', 'mem', 'gpu', 'pod']
-            node_alloc = self.dict_format(keyword, node_data['allocatable'])
-            node_request = self.dict_format(keyword, node_data['request'])
-            node_usage = self.dict_format(keyword, node_data['usage'])
-            node_status = [
-                node_alloc,
-                node_request,
-                node_usage
-            ]
-            cluster_data[node_name] = node_status
-
-        return cluster_info
-
-    def dict_format(self, key_order, dict):
-        result = []
-
-        for key in key_order:
-            result.append(dict[key])
-
-        return result
+        # if the cluster info not update yet
+        # return the updated cluster data
+        if cluster_info['clock'] == self.cluster_info['clock']:
+            return self.cluster_info
+        # return the cluster info of the new time stamp
+        # also update the resource data
+        else:
+            self.cluster_info = cluster_info
+            self._update_usage()
+            return self.cluster_info
 
     def scheduled_pod_num(self):
         return self._scheduled_pod_num
