@@ -35,8 +35,7 @@ class ClientThread(threading.Thread):
         # print(os.getcwd())
 
         module_path = os.path.abspath(__file__)
-        parent_folder = 
-            os.path.dirname(
+        parent_folder = os.path.dirname(
                 os.path.dirname(
                     os.path.dirname(
                         os.path.dirname(
