@@ -39,7 +39,7 @@ class ClientThread(threading.Thread):
                 os.path.dirname(
                     os.path.dirname(
                         os.path.dirname(
-                            module_path)))))
+                            module_path))))
         folder_path = parent_folder + '/remoteScheTest'
         go_file = folder_path + '/*.go'
         config_path = parent_folder + '/gym-k8s/gym_k8s/config/'
