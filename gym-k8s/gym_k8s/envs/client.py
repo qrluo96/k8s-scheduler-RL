@@ -48,7 +48,7 @@ class ClientThread(threading.Thread):
         cmd = 'go run ' + go_file + ' --config ' + config_path
 
         self.childThread = subprocess.Popen(
-            cmd
+            cmd,
             # 'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go --config /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/gym-k8s/gym_k8s/config/', 
             # 'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go', 
             shell=True, 
