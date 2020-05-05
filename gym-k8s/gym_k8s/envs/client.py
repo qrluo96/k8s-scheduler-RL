@@ -32,10 +32,24 @@ class ClientThread(threading.Thread):
     def restart(self):
         self._variable_init()
 
-        print(os.getcwd())
+        # print(os.getcwd())
+
+        module_path = os.path.abspath(__file__)
+        parent_folder = 
+            os.path.dirname(
+                os.path.dirname(
+                    os.path.dirname(
+                        os.path.dirname(
+                            module_path)))))
+        folder_path = parent_folder + '/remoteScheTest'
+        go_file = folder_path + '/*.go'
+        config_path = parent_folder + '/gym-k8s/gym_k8s/config/'
+
+        cmd = 'go run ' + go_file + ' --config ' + config_path
 
         self.childThread = subprocess.Popen(
-            'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go --config /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/gym-k8s/gym_k8s/config/', 
+            cmd
+            # 'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go --config /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/gym-k8s/gym_k8s/config/', 
             # 'go run /Users/qrluo/Documents/GitHub/k8s-scheduler-RL/remoteScheTest/*.go', 
             shell=True, 
             start_new_session=True, 

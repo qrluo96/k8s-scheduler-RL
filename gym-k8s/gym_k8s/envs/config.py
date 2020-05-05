@@ -1,7 +1,20 @@
+import os
 import yaml
 
-def read_config(path):
-    with open(path, 'r') as stream:
+def read_config():
+    module_path = os.path.abspath(__file__)
+    file_dir = os.path.dirname(os.path.dirname(module_path)) + '/config'
+
+    print(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.dirname(
+                    os.path.dirname(
+                        module_path)))))
+
+    file_path = file_dir + '/config.yaml'
+
+    with open(file_path, 'r') as stream:
         try:
             yaml_data = yaml.load(stream)
             return yaml_data
@@ -9,9 +22,7 @@ def read_config(path):
             print(exc)
 
 if __name__ == "__main__":
-    path = "/Users/qrluo/Documents/GitHub/k8s-scheduler-RL/gym-k8s/gym_k8s/envs/config.yaml"
-
-    yaml_data = read_config(path)
+    yaml_data = read_config()
 
     cluster_data = yaml_data["cluster"]
 

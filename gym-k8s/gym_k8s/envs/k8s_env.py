@@ -19,7 +19,7 @@ clock:
 pod infomation:
                        CPU     MEM     GPU
                     ┌───────┬───────┬───────┐
-limit_resource      │       │       │       │
+# limit_resource      │       │       │       │
                     ├───────┼───────┼───────┤              
 request_resource    │       │       │       │
                     └───────┴───────┴───────┘
@@ -47,7 +47,7 @@ TIME_WINDOW = 360
 class K8sEnv(gym.Env):
 #   metadata = {'render.modes': ['human']}
 
-    _path = "/Users/qrluo/Documents/GitHub/k8s-scheduler-RL/gym-k8s/gym_k8s/envs/config.yaml"
+    # _path = "/Users/qrluo/Documents/GitHub/k8s-scheduler-RL/gym-k8s/gym_k8s/envs/config.yaml"
 
     def __init__(self):
         # variables
@@ -143,7 +143,7 @@ class K8sEnv(gym.Env):
         # print(cluster_status)
 
         observation = [
-            clock,
+            # clock,
             pod_status,
             np.array(cluster_status),
         ]
@@ -372,7 +372,7 @@ class K8sEnv(gym.Env):
     #     print("all exited")
 
     def _set_space(self):
-        yaml_data = config.read_config(self._path)
+        yaml_data = config.read_config()
 
         self.tick = yaml_data['tick']
         cluster_data = yaml_data['cluster']
@@ -435,11 +435,16 @@ class K8sEnv(gym.Env):
         ))
         self.observation_space = spaces.Tuple((
             # clock
-            spaces.Discrete(np.inf),
+            # spaces.Discrete(np.inf),
             # pod info
+            # spaces.Box(
+            #     low = np.zeros((2, 4)),
+            #     high = np.array([pod_resources_limit, pod_resources_limit]),
+            #     dtype=np.int32
+            # ),            
             spaces.Box(
-                low = np.zeros((2, 4)),
-                high = np.array([pod_resources_limit, pod_resources_limit]),
+                low = np.zeros((1, 4)),
+                high = np.array([pod_resources_limit]),
                 dtype=np.int32
             ),
             # cluster info
