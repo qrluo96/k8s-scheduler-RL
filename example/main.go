@@ -27,9 +27,9 @@ import (
 	"k8s.io/kubernetes/pkg/scheduler/algorithm/predicates"
 	"k8s.io/kubernetes/pkg/scheduler/algorithm/priorities"
 
-	kubesim "github.com/pfnet-research/k8s-cluster-simulator/pkg/kubesim"
-	"github.com/pfnet-research/k8s-cluster-simulator/pkg/queue"
-	"github.com/pfnet-research/k8s-cluster-simulator/pkg/scheduler"
+	kubesim "simulator/pkg/kubesim"
+	"simulator/pkg/queue"
+	"simulator/pkg/scheduler"
 )
 
 func main() {
