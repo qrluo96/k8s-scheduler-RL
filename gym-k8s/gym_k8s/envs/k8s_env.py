@@ -67,6 +67,7 @@ class K8sEnv(gym.Env):
 
     def step(self, action):
         print(action)
+        punish = 0
 
         if action == 0:
             is_fit = client.NOTFIT
@@ -78,8 +79,10 @@ class K8sEnv(gym.Env):
 
             is_feasible = self._feasible_check(node_result)
             if is_feasible == False:
-                is_over = True
-                return [], -1000, is_over, {}
+                punish = -1
+
+                is_fit = client.NOTFIT
+                node_result = 0
 
         self._take_action(is_fit, node_result)
         # wait for next status
@@ -88,6 +91,7 @@ class K8sEnv(gym.Env):
         ob = self._ob_format()
         is_over = self._is_over()
         reward = self._get_reward(action)
+        reward += punish
 
         return ob, reward, is_over, {}
 
@@ -412,15 +416,6 @@ class K8sEnv(gym.Env):
             max_mem = max(max_mem, mem_int)
             max_gpu = max(max_gpu, gpu)
             max_pod = max(max_pod, pod)
-
-            # resources_limit = [cpu, mem_int, gpu, pod]
-
-            # discrete_space  = spaces.Box(
-            #     low = [0, 0, 0, 0], 
-            #     high = resources_limit,
-            #     dtype = np.int32,
-            # )
-            # cluster_info_spaces.append(discrete_space)
         
         resource_limit = [max_cpu, max_mem, max_gpu, max_pod]
         node_limit = []
@@ -438,24 +433,6 @@ class K8sEnv(gym.Env):
             high = np.array(cluster_limit),
             dtype = np.int32,
         )
-        # self.action_space = spaces.Tuple((
-        #     spaces.Discrete(2),
-        #     spaces.Discrete(node_num),
-        # ))
-        # self.observation_space = spaces.Tuple((
-        #     spaces.Box(
-        #         low = np.zeros((1, 4)),
-        #         high = np.array([pod_resources_limit]),
-        #         dtype=np.int32
-        #     ),
-        #     # cluster info
-        #     spaces.Box(
-        #         low = np.zeros((node_num, 3, 4)),
-        #         high = np.array(cluster_limit),
-        #         # shape = (node_num, 3, 4),
-        #         dtype = np.int32
-        #     ),
-        # ))
 
 ACTION_LOOKUP = {
     0 : client.FIT,

@@ -44,16 +44,6 @@ def filter(observation):
 if __name__ == "__main__":
     env = gym.make('gym_k8s:k8s-v0')
 
-    # observation = env.reset()
-    
-    # print('observation: ', end = '')
-    # print(observation)
-
-    # action = first_fit(observation)
-    # observation, reward, done, info = env.step(action)
-    # print(reward)
-    # print(observation)
-
     
     for i_episode in range(20):
         observation = env.reset()
