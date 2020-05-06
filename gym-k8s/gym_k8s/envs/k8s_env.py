@@ -14,15 +14,14 @@ import gym_k8s.envs.server as server
 '''
 
 observation space:
-clock:
 
-pod infomation:
-                       CPU     MEM     GPU
-                    ┌───────┬───────┬───────┐
-# limit_resource      │       │       │       │
-                    ├───────┼───────┼───────┤              
-request_resource    │       │       │       │
-                    └───────┴───────┴───────┘
+# pod infomation:
+#                        CPU     MEM     GPU
+#                     ┌───────┬───────┬───────┐
+# # limit_resource      │       │       │       │
+#                     ├───────┼───────┼───────┤              
+# request_resource    │       │       │       │
+#                     └───────┴───────┴───────┘
 
 cluster infomation:
   alloc  request  usage 
@@ -67,17 +66,22 @@ class K8sEnv(gym.Env):
         self._set_space()
 
     def step(self, action):
-        print(action[0])
-        print(action[1])
-        # if fit, do feadible check
-        if action[0] == client.FIT:
-            is_feasible = self._feasible_check(action)
+        print(action)
 
+        if action == 0:
+            is_fit = client.NOTFIT
+            node_result = 0
+        # if fit, do feadible check
+        else:
+            is_fit = client.FIT
+            node_result = action - 1
+
+            is_feasible = self._feasible_check(node_result)
             if is_feasible == False:
                 is_over = True
                 return [], -1000, is_over, {}
 
-        self._take_action(action)
+        self._take_action(is_fit, node_result)
         # wait for next status
         self._update_status()
 
@@ -109,24 +113,24 @@ class K8sEnv(gym.Env):
 
     # format cluster info into observation space type
     def _ob_format(self):
-        observation = []
+        cluster_status = []
 
         cluster_data = self.status
 
-        clock = cluster_data['clock']
         pod_data = cluster_data['pod_data']
         cluster_data = cluster_data['cluster_data']
 
         # format pod status
         pod_limit = pod_data['limit']
         pod_request = pod_data['request']
-        pod_status = np.array([
-            [pod_limit['cpu'], pod_limit['mem'], pod_limit['gpu'], 1],
-            [pod_request['cpu'], pod_request['mem'], pod_request['gpu'], 1]
-        ])
+        pod_status = [
+            [0, 0, 0, 0],
+            [pod_request['cpu'], pod_request['mem'], pod_request['gpu'], 1],
+            [0, 0, 0, 0],
+        ]
+        cluster_status.append(pod_status)
 
         # format cluster status
-        cluster_status = []
         for node_name in cluster_data.keys():
             node_data = cluster_data[node_name]
             keyword = ['cpu', 'mem', 'gpu', 'pod']
@@ -140,13 +144,7 @@ class K8sEnv(gym.Env):
             ]
             cluster_status.append(node_status)
 
-        # print(cluster_status)
-
-        observation = [
-            # clock,
-            pod_status,
-            np.array(cluster_status),
-        ]
+        observation = np.array(cluster_status)
 
         return observation
 
@@ -158,12 +156,10 @@ class K8sEnv(gym.Env):
 
         return result
 
-    def _feasible_check(self, action):
+    def _feasible_check(self, node_result):
         self._feasible_node = self._filter()
 
-        # print(self.node_names)
-        # print(action[1])
-        node_name = self.node_names[action[1]]
+        node_name = self.node_names[node_result]
 
         if node_name not in self._feasible_node:
             return False
@@ -209,10 +205,6 @@ class K8sEnv(gym.Env):
 
     def _get_reward(self, action):
         reward = 0
-
-        # if current pod successfully scheduled
-        if action[0] == client.FIT:
-            reward += 0.1
 
         if self.clock == 0:
             return reward
@@ -324,9 +316,21 @@ class K8sEnv(gym.Env):
 
         self.clock = clock
 
-    def _take_action(self, action):
-        is_fit = ACTION_LOOKUP[action[0]]
-        node_name = self.node_names[action[1]]
+    # def _take_action(self, action):
+    #     if action == 0:
+    #         is_fit = client.NOTFIT
+    #         node_result = 0
+    #     else:
+    #         is_fit = client.FIT
+    #         node_result = action - 1
+
+    #     node_name = self.node_names[node_result]
+    #     node_num = len(self.node_names)
+    #     feasible_node_num = len(self._feasible_node)
+    #     self._client_thread.act(is_fit, node_name, node_num, feasible_node_num)
+
+    def _take_action(self, is_fit, node_result):
+        node_name = self.node_names[node_result]
         node_num = len(self.node_names)
         feasible_node_num = len(self._feasible_node)
         self._client_thread.act(is_fit, node_name, node_num, feasible_node_num)
@@ -423,38 +427,35 @@ class K8sEnv(gym.Env):
         for i in range(3):
             node_limit.append(resource_limit)
         cluster_limit = []
-        for i in range(node_num):
+        for i in range(node_num + 1):
             cluster_limit.append(node_limit)
 
         pod_resources_limit = [max_cpu, max_mem, max_gpu, 1]
 
-        # self.action_space = spaces.Discrete(node_num)
-        self.action_space = spaces.Tuple((
-            spaces.Discrete(2),
-            spaces.Discrete(node_num),
-        ))
-        self.observation_space = spaces.Tuple((
-            # clock
-            # spaces.Discrete(np.inf),
-            # pod info
-            # spaces.Box(
-            #     low = np.zeros((2, 4)),
-            #     high = np.array([pod_resources_limit, pod_resources_limit]),
-            #     dtype=np.int32
-            # ),            
-            spaces.Box(
-                low = np.zeros((1, 4)),
-                high = np.array([pod_resources_limit]),
-                dtype=np.int32
-            ),
-            # cluster info
-            spaces.Box(
-                low = np.zeros((node_num, 3, 4)),
-                high = np.array(cluster_limit),
-                # shape = (node_num, 3, 4),
-                dtype = np.int32
-            ),
-        ))
+        self.action_space = spaces.Discrete(node_num + 1)
+        self.observation_space = spaces.Box(
+            low = np.zeros((node_num + 1, 3, 4)),
+            high = np.array(cluster_limit),
+            dtype = np.int32,
+        )
+        # self.action_space = spaces.Tuple((
+        #     spaces.Discrete(2),
+        #     spaces.Discrete(node_num),
+        # ))
+        # self.observation_space = spaces.Tuple((
+        #     spaces.Box(
+        #         low = np.zeros((1, 4)),
+        #         high = np.array([pod_resources_limit]),
+        #         dtype=np.int32
+        #     ),
+        #     # cluster info
+        #     spaces.Box(
+        #         low = np.zeros((node_num, 3, 4)),
+        #         high = np.array(cluster_limit),
+        #         # shape = (node_num, 3, 4),
+        #         dtype = np.int32
+        #     ),
+        # ))
 
 ACTION_LOOKUP = {
     0 : client.FIT,

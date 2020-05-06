@@ -8,17 +8,17 @@ def first_fit(observation):
     feasible_node = filter(observation)
 
     if len(feasible_node) <= 0:
-        return NOTFIT, 0
+        return 0
     else:
-        return FIT, feasible_node[0]
+        return feasible_node[0] + 1
 
 def filter(observation):
     feasible_node = []
 
-    pod_status = observation[0]
-    cluster_status = observation[1]
+    # pod_status = observation[0][1]
+    cluster_status = observation[1:]
 
-    pod_request = pod_status[0]
+    pod_request = observation[0][1]
     
     for i in range(len(cluster_status)):
         feasible = True
