@@ -100,7 +100,7 @@ class ClientThread(threading.Thread):
             pass
         else:
             i_start = self._clock_list.index(prev_clock)
-            for clock in self._clock_list[i_start:-1]:
+            for clock in self._clock_list[i_start:]:
                 self._add_usage(clock)
 
     def _add_usage(self, clock):
