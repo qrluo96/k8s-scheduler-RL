@@ -37,7 +37,6 @@ def restart():
     global NEWPOD
     global TIMELIST
     
-
     CLUSTERDATA = {}
     PODDATA = {}
     SCHEDULERESULT = {}
@@ -49,16 +48,6 @@ def restart():
     FINISHEDPOD = 0
     NEWPOD = False
     TIMELIST = []
-
-# # should not be used
-# def GetClusterData():
-#     return CLUSTERDATA
-
-# def GetPodData():
-#     return PODDATA
-
-# def AddPodData(key, value):
-#     PODDATA[key] = value
 
 # get_cluster_data return the newest status data after send backschedule result
 def get_cluster_data(clock = None):

@@ -19,6 +19,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 
 	v1 "k8s.io/api/core/v1"
@@ -69,21 +70,25 @@ func (s *mySubmitter) Submit(
 		s.podIdx++
 	}
 
-	// submit pod num
-	if s.podIdx > 2048 {
-		events = append(events, &submitter.TerminateSubmitterEvent{})
-	}
+	// no pod number limit for simulator
+	// // submit pod num
+	// if s.podIdx > 10e9 {
+	// 	events = append(events, &submitter.TerminateSubmitterEvent{})
+	// }
 
 	return events, nil
 }
 
 func (s *mySubmitter) newPod(idx uint64) *v1.Pod {
 	simSpec := ""
-	for i := 0; i < s.myrand.Intn(4)+1; i++ {
+	cpuMax := 1 + s.myrand.Intn(96)
+	memMax := 1 + s.myrand.Intn(768)
+	gpu := s.myrand.Intn(9)
+	// max 2 day
+	for i := 0; i < s.myrand.Intn(48)+1; i++ {
 		sec := 60 * s.myrand.Intn(60)
-		cpu := 1 + s.myrand.Intn(4)
-		mem := 1 + s.myrand.Intn(4)
-		gpu := s.myrand.Intn(2)
+		cpu := 1 + s.myrand.Intn(cpuMax)
+		mem := 1 + s.myrand.Intn(memMax)
 
 		simSpec += fmt.Sprintf(`
 - seconds: %d
@@ -95,6 +100,11 @@ func (s *mySubmitter) newPod(idx uint64) *v1.Pod {
 	}
 
 	prio := s.myrand.Int31n(3) / 2 // 0, 0, 1
+
+	cpuStr := strconv.Itoa(cpuMax)
+	memStr := strconv.Itoa(memMax)
+	memStr += "Gi"
+	gpuStr := strconv.Itoa(gpu)
 
 	pod := v1.Pod{
 		TypeMeta: metav1.TypeMeta{
@@ -116,14 +126,14 @@ func (s *mySubmitter) newPod(idx uint64) *v1.Pod {
 					Image: "container",
 					Resources: v1.ResourceRequirements{
 						Requests: v1.ResourceList{
-							"cpu":            resource.MustParse("4"),
-							"memory":         resource.MustParse("4Gi"),
-							"nvidia.com/gpu": resource.MustParse("1"),
+							"cpu":            resource.MustParse(cpuStr),
+							"memory":         resource.MustParse(memStr),
+							"nvidia.com/gpu": resource.MustParse(gpuStr),
 						},
 						Limits: v1.ResourceList{
-							"cpu":            resource.MustParse("6"),
-							"memory":         resource.MustParse("6Gi"),
-							"nvidia.com/gpu": resource.MustParse("1"),
+							"cpu":            resource.MustParse(cpuStr),
+							"memory":         resource.MustParse(memStr),
+							"nvidia.com/gpu": resource.MustParse(gpuStr),
 						},
 					},
 				},

@@ -15,13 +15,15 @@ import gym_k8s.envs.server as server
 
 observation space:
 
-# pod infomation:
-#                        CPU     MEM     GPU
-#                     ┌───────┬───────┬───────┐
-# # limit_resource      │       │       │       │
-#                     ├───────┼───────┼───────┤              
-# request_resource    │       │       │       │
-#                     └───────┴───────┴───────┘
+pod infomation:
+                       CPU     MEM     GPU     POD
+                    ┌───────┬───────┬───────┬───────┐
+                    │   0   │   0   │   0   │   0   │
+                    ├───────┼───────┼───────┼───────┤
+request_resource    │       │       │       │   1   │
+                    ├───────┼───────┼───────┼───────┤
+                    │   0   │   0   │   0   │   0   │
+                    └───────┴───────┴───────┴───────┘
 
 cluster infomation:
   alloc  request  usage 
@@ -57,6 +59,7 @@ class K8sEnv(gym.Env):
         self._client_thread = None
 
     def _variable_init(self):
+        self.prev_clock = 0
         self.clock = 0
         self._feasible_node = []
         self.node_names = []
@@ -202,7 +205,7 @@ class K8sEnv(gym.Env):
     def _is_over(self):
         scheduled_pod_num = self._client_thread.scheduled_pod_num()
 
-        if scheduled_pod_num < 1024:
+        if scheduled_pod_num < 10e6:
             return False
         else:
             return True
@@ -218,35 +221,25 @@ class K8sEnv(gym.Env):
         ]
 
         total_resource = self._client_thread.get_resource_status(self.clock - self.tick)
-        # print(total_resource)
-        avg_request_prcnt = self._get_resource_avg(total_resource, 'request')
-        # print(avg_request_prcnt)
-        # avg_usage_prcnt = self._get_resource_avg(total_resource, 'usage')
-        avg_reward = self._resource_scale(avg_request_prcnt)
-        reward += avg_reward
-        
-        # TODO: accummulated utilization rate for a curtain time window
-        delta_time = TIME_WINDOW * self.tick
-        prev_clock = self.clock - delta_time
-        if prev_clock < 0:
-            prev_clock = 0
-        prev_resource = self._client_thread.get_resource_status(prev_clock)
+        prev_resource = self._client_thread.get_resource_status(self.prev_clock)
         dif_resource = self._dif_resource(total_resource, prev_resource)
-        time_window_request_prcnt = self._get_resource_avg(dif_resource, 'request')
-        time_window_reward = self._resource_scale(time_window_request_prcnt)
-        reward += time_window_reward
+
+        request_prcnt = self._get_resource_avg(dif_resource, 'request')
+        usage_prcnt = self._get_resource_avg(dif_resource, 'usage')
+
+        reward += 0.8*self._resource_scale(request_prcnt) + 0.2*self._resource_scale(usage_prcnt)
 
         return reward
 
     def _resource_scale(self, avg_resource_prcnt):
         # print(avg_resource_prcnt)
 
-        score = 0
-        score += avg_resource_prcnt['cpu'] * 0.8
-        score += avg_resource_prcnt['mem'] * 1
-        score += avg_resource_prcnt['gpu'] * 1.2
+        prcnt = 0
+        prcnt += avg_resource_prcnt['cpu'] * 0.8
+        prcnt += avg_resource_prcnt['mem'] * 1
+        prcnt += avg_resource_prcnt['gpu'] * 1.2
 
-        return score
+        return prcnt
 
     # dif_resource = resource_1 - resource_2
     def _dif_resource(self, resource_1, resource_2):
@@ -318,6 +311,7 @@ class K8sEnv(gym.Env):
             'cluster_data': copy.copy(cluster_data)
         }
 
+        self.prev_clock = self.clock
         self.clock = clock
 
     # def _take_action(self, action):

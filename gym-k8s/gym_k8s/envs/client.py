@@ -88,10 +88,6 @@ class ClientThread(threading.Thread):
         if clock < 0:
             clock = 0
 
-        # print('debug ', clock)
-        # print(self._resource_log[clock])
-        # print(self._resource_log)
-
         return copy.copy(self._resource_log[clock])
 
     # update the latest resource data
@@ -115,7 +111,6 @@ class ClientThread(threading.Thread):
             for clock in self._clock_list[i_start:-1]:
                 self._add_usage(clock)
 
-    
     def _add_usage(self, clock):
         cluster_data_raw = RLServer.get_cluster_data(clock)
 
