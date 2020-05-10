@@ -205,7 +205,7 @@ class K8sEnv(gym.Env):
     def _is_over(self):
         scheduled_pod_num = self._client_thread.scheduled_pod_num()
 
-        if scheduled_pod_num < 10e6:
+        if scheduled_pod_num < 1e6:
             return False
         else:
             return True

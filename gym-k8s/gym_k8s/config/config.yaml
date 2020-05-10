@@ -29,7 +29,7 @@ metricsLogger:
 # Write configuration of each node.
 cluster:
 - metadata:
-    name: node-0
+    name: kube-master
     labels:
       beta.kubernetes.io/os: simulated
     annotations:
@@ -42,12 +42,12 @@ cluster:
     #   effect: NoSchedule
   status:
     allocatable:
-      cpu: 4
-      memory: 8Gi
-      nvidia.com/gpu: 1
-      pods: 2
+      cpu: 96
+      memory: 768Gi
+      nvidia.com/gpu: 8
+      pods: 110
 - metadata:
-    name: node-1
+    name: work-node-0
     labels:
       beta.kubernetes.io/os: simulated
     # annotations:
@@ -56,7 +56,91 @@ cluster:
     # taints:
   status:
     allocatable:
-      cpu: 8
-      memory: 16Gi
-      nvidia.com/gpu: 2
-      pods: 4
+      cpu: 96
+      memory: 768Gi
+      nvidia.com/gpu: 8
+      pods: 110
+- metadata:
+    name: work-node-1
+    labels:
+      beta.kubernetes.io/os: simulated
+    # annotations:
+  spec:
+    unschedulable: false
+    # taints:
+  status:
+    allocatable:
+      cpu: 96
+      memory: 768Gi
+      nvidia.com/gpu: 8
+      pods: 110
+- metadata:
+    name: work-node-2
+    labels:
+      beta.kubernetes.io/os: simulated
+    # annotations:
+  spec:
+    unschedulable: false
+    # taints:
+  status:
+    allocatable:
+      cpu: 96
+      memory: 768Gi
+      nvidia.com/gpu: 8
+      pods: 110
+- metadata:
+    name: work-node-3
+    labels:
+      beta.kubernetes.io/os: simulated
+    # annotations:
+  spec:
+    unschedulable: false
+    # taints:
+  status:
+    allocatable:
+      cpu: 96
+      memory: 768Gi
+      nvidia.com/gpu: 8
+      pods: 110
+- metadata:
+    name: work-node-4
+    labels:
+      beta.kubernetes.io/os: simulated
+    # annotations:
+  spec:
+    unschedulable: false
+    # taints:
+  status:
+    allocatable:
+      cpu: 96
+      memory: 768Gi
+      nvidia.com/gpu: 8
+      pods: 110
+- metadata:
+    name: work-node-5
+    labels:
+      beta.kubernetes.io/os: simulated
+    # annotations:
+  spec:
+    unschedulable: false
+    # taints:
+  status:
+    allocatable:
+      cpu: 96
+      memory: 768Gi
+      nvidia.com/gpu: 8
+      pods: 110
+- metadata:
+    name: work-node-6
+    labels:
+      beta.kubernetes.io/os: simulated
+    # annotations:
+  spec:
+    unschedulable: false
+    # taints:
+  status:
+    allocatable:
+      cpu: 96
+      memory: 768Gi
+      nvidia.com/gpu: 8
+      pods: 110

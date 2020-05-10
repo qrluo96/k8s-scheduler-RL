@@ -43,7 +43,6 @@ def filter(observation):
 
 if __name__ == "__main__":
     env = gym.make('gym_k8s:k8s-v0')
-
     
     for i_episode in range(20):
         observation = env.reset()
