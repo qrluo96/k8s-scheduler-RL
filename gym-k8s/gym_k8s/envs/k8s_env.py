@@ -221,8 +221,13 @@ class K8sEnv(gym.Env):
         ]
 
         total_resource = self._client_thread.get_resource_status(self.clock - self.tick)
-        prev_resource = self._client_thread.get_resource_status(self.prev_clock)
-        dif_resource = self._dif_resource(total_resource, prev_resource)
+
+        if self.prev_clock == 0:
+            dif_resource = total_resource
+        else:
+            prev_resource = self._client_thread.get_resource_status(self.prev_clock)
+
+            dif_resource = self._dif_resource(total_resource, prev_resource)
 
         request_prcnt = self._get_resource_avg(dif_resource, 'request')
         usage_prcnt = self._get_resource_avg(dif_resource, 'usage')
