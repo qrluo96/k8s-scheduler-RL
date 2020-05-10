@@ -94,10 +94,6 @@ class ClientThread(threading.Thread):
     def _update_usage(self):
         prev_clock = self._info_clock
         self._info_clock = RLServer.INFOCLOCK
-        # print('prev_clock: ', end = '')
-        # print(prev_clock)
-        # print('info_clock: ', end = '')
-        # print(self._info_clock)
 
         # if the simulator is just started
         # use add_usage function to initial sum_resource var
@@ -164,6 +160,7 @@ class ClientThread(threading.Thread):
         # return the updated cluster data
         if cluster_info['clock'] == 0:
             self.cluster_info = copy.copy(cluster_info)
+            self._update_usage()
             return self.cluster_info
         elif cluster_info['clock'] == self.cluster_info['clock']:
             return self.cluster_info
