@@ -64,7 +64,6 @@ class ClientThread(threading.Thread):
 
         self._pod_data = RLServer.PODDATA
         self._cluster_data = RLServer.CLUSTERDATA
-        # self._scheduled_pod_num = RLServer.FINISHEDPOD
         self._clock_list = RLServer.TIMELIST
         self._info_clock = 0
 
@@ -80,9 +79,6 @@ class ClientThread(threading.Thread):
         self.childThread.wait()
         print("Tester code: ", end = '')
         print(self.childThread.poll())
-
-    # def get_pod_data(self):
-    #     return self._pod_data
 
     def get_resource_status(self, clock):
         if clock < 0:
